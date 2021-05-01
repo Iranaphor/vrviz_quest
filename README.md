@@ -1,1 +1,1 @@
-# VRViz-Occulus-Quest-Client
+# VRViz-Oculus-Quest-Client
