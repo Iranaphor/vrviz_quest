@@ -31,6 +31,8 @@ using UnityEngine.UI;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 using M2MqttUnity;
+using VRViz.pocso;
+using VRViz.pocso.odom;
 
 /// <summary>
 /// Examples for the M2MQTT library (https://github.com/eclipse/paho.mqtt.m2mqtt),
@@ -59,12 +61,14 @@ namespace M2MqttUnity.Examples
         private bool updateUI = false;                       
         
         private static string[] example = new string[]{"M2MQTT_Unity/test","",""};
-        private static string[] ros = new string[]{"__dynamic_server", "/test","vrviz/test"};
-        private static string[] ros2 = new string[]{"__dynamic_server", "/odom","vrviz/odom"};
+        private static string[] ros = new string[]{"__dynamic_server", "/test","vrviz/test", "std_msgs.msg:String"};
+        private static string[] ros2 = new string[]{"__dynamic_server", "/odom","vrviz/odom", "nav_msgs.msg:Odometry"};
 
-        private List<string[]> topics = new List<string[]> { ros }; //__dynamic_server_DATA__test_TO_m2_test
+        private List<string[]> topics = new List<string[]> { ros2 }; //__dynamic_server_DATA__test_TO_m2_test
         
         
+        [Header("Robot Model")]
+        public Transform robot_transform;
 
 
         public void TestPublish()
@@ -129,7 +133,7 @@ namespace M2MqttUnity.Examples
             }
         }
 
-        protected void OpenTopic(string ros_topic, string mqtt_reference, string msg_type, int frequency = 1, bool latched = false, int qos = MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE) {
+        protected void OpenTopic(string ros_topic, string mqtt_reference, string msg_type, int frequency = 24, bool latched = false, int qos = MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE) {
             /*
             1. send to control topic /dynamic_server/topic/# ros2mqtt message. i.e. tell ros to forward topic X to MQTT
             2. listen to mqtt topic on quest
@@ -188,7 +192,7 @@ namespace M2MqttUnity.Examples
                 {
                     string ros_topic = t[1];
                     string mqtt_topic = t[2];
-                    string msg_type = "std_msgs.msg:String";
+                    string msg_type = t[3];
                     //Identify topic to publish to     //__dynamic_server_DATA__test_TO_m2_test
                     // topic = factory + "_DATA_" + ros_topic + "_TO_" + mqtt_topic;
                     // topic = topic.Replace('/', '_');
@@ -292,13 +296,30 @@ namespace M2MqttUnity.Examples
         protected override void DecodeMessage(string topic, byte[] message)
         {
             string msg = System.Text.Encoding.UTF8.GetString(message);
-            if (topic == "M2MQTT_Unity/test") { autoTest = false; }
 
-            Debug.Log(topic + " received: " + msg);
-            AddUiMessage("Message received from: " + topic);
-            AddUiMessage("\" " + msg + " \"");
-            AddUiMessage("----------------------");
+            if (topic == "vrviz/odom") { 
+                ODOM_Message json_parsed = JsonUtility.FromJson<ODOM_Message>(msg);
+                SetPosition(robot_transform, json_parsed);
+            }
+
+            // Debug.Log(topic + " received: " + msg);
+            // AddUiMessage("Message received from: " + topic);
+            // AddUiMessage("\" " + msg + " \"");
+            // AddUiMessage("----------------------");
         }
+
+        protected void SetPosition(Transform tf, ODOM_Message json)
+        {
+            //
+            Position parse = json.pose.pose.position;
+            Orientation orient = json.pose.pose.orientation;
+            Vector3 pos = new Quaternion(orient.x, orient.y, orient.z, orient.w).eulerAngles;
+
+            //Apply transforms
+            tf.position = new Vector3(parse.x, 0, parse.y);
+            tf.rotation = Quaternion.Euler(0,pos.z,0);
+        }
+
 
         protected override void Update()
         {
