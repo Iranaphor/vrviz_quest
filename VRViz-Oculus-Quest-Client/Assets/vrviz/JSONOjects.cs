@@ -58,6 +58,13 @@ namespace VRViz {
         }
 
         [Serializable]
+        public class Point{
+            public float x;
+            public float y;
+            public float z;
+        }
+
+        [Serializable]
         public class Color_RGBA{
             public float r;
             public float g;
@@ -112,19 +119,77 @@ namespace VRViz {
                 public Pose pose;
                 public Vector_Three scale;
                 public Color_RGBA color;
-
                 public int duration;
+                public bool frame_locked;
 
+                public Point[] points;
+                public Color_RGBA[] colors;
+                public string text;
+                public string mesh_resource;
+                public bool mesh_use_embedded_materials;
+                public string ns;
+                public int id;
+                public int type;
+                public int action;
             }
 
             [Serializable]
             public class Header{
-                public string ns;
-                public int id;
+                public string frame_id;
+                public Stamp stamp;
             }
         }       
+
+
+
 
     }
        
 }
+
+
+/*
+for each message:
+define new file of message_name in folder message_package
+line 0-M -> using vrviz.message.<MESSAGE_PACKAGE>; for each message package type needed
+line M+1 -> namespace vrviz.messages.<MESSAGE_PACKAGE>{
+line M+2 -> [Serializable]
+line M+3 -> public class <MESSAGE_NAME>{
+lines (M+4)-(N-2) -> public $(roscat MESSAGE_PACKAGE MESSAGE_FILE.msg);
+line N-1 -> }
+line N -> }
+
+e.g.
+Point Message:
+namespace vrviz.messages.geometry_msgs{
+    [Serializable]
+    public class Point{
+        public float64 x;
+        public float64 y;
+        public float64 z;
+    }
+}
+
+Pose Message
+namespace vrviz.messages.geometry_msgs{
+    [Serializable]
+    public class Point{
+        public Positon position;
+        public Quaternion orientation;
+    }
+}
+
+Position Message:
+namespace vrviz.messages.geometry_msgs{
+    [Serializable]
+    public class Point{
+        public float64 x;
+        public float64 y;
+        public float64 z;
+    }
+}
+
+
+*/
+
 

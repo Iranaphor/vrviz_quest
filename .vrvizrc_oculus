@@ -1,0 +1,14 @@
+export VRVIZRC_DIR=~/vrviz_app_ws/VRViz-Oculus-Quest-Client
+
+function build_msgs () 
+{
+    OLDDIR=`pwd`;
+    cd $VRVIZRC_DIR/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/;
+    python processor.py -p actionlib_msgs geometry_msgs nav_msgs sensor_msgs std_msgs visualization_msgs -t 4;
+    cd $OLDDIR;
+}
+
+function cdAssets () 
+{
+    cd $VRVIZRC_DIR/VRViz-Oculus-Quest-Client/Assets/
+}
