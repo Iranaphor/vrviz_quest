@@ -1,11 +1,11 @@
 using System;
-using vrviz.msg.std_msgs;
-using vrviz.msg.geometry_msgs;
+using geometry_msgs = vrviz.msg.geometry_msgs;
+using std_msgs = vrviz.msg.std_msgs;
 
 namespace vrviz.msg.geometry_msgs {
 	[Serializable]
 	public class PointStamped {
-		public Header header;
-		public Point point;
+		public std_msgs::Header header;
+		public geometry_msgs::Point point;
 	}
 }

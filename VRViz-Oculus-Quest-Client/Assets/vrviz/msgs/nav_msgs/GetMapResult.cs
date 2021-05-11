@@ -1,9 +1,9 @@
 using System;
-using vrviz.msg.nav_msgs;
+using nav_msgs = vrviz.msg.nav_msgs;
 
 namespace vrviz.msg.nav_msgs {
 	[Serializable]
 	public class GetMapResult {
-		public OccupancyGrid map;
+		public nav_msgs::OccupancyGrid map;
 	}
 }

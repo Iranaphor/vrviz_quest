@@ -1,10 +1,10 @@
 using System;
-using vrviz.msg.std_msgs;
+using std_msgs = vrviz.msg.std_msgs;
 
 namespace vrviz.msg.std_msgs {
 	[Serializable]
 	public class MultiArrayLayout {
-		public MultiArrayDimension[] dim;
-		public std_msgs.UInt32 data_offset;
+		public std_msgs::MultiArrayDimension[] dim;
+		public std_msgs::UInt32 data_offset;
 	}
 }

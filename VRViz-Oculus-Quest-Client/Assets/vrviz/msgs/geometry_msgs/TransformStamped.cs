@@ -1,12 +1,12 @@
 using System;
-using vrviz.msg.std_msgs;
-using vrviz.msg.geometry_msgs;
+using geometry_msgs = vrviz.msg.geometry_msgs;
+using std_msgs = vrviz.msg.std_msgs;
 
 namespace vrviz.msg.geometry_msgs {
 	[Serializable]
 	public class TransformStamped {
-		public Header header;
-		public std_msgs.String child_frame_id;
-		public Transform transform;
+		public std_msgs::Header header;
+		public std_msgs::String child_frame_id;
+		public geometry_msgs::Transform transform;
 	}
 }

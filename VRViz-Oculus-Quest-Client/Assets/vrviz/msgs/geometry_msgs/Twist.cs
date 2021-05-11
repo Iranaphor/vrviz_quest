@@ -1,10 +1,10 @@
 using System;
-using vrviz.msg.geometry_msgs;
+using geometry_msgs = vrviz.msg.geometry_msgs;
 
 namespace vrviz.msg.geometry_msgs {
 	[Serializable]
 	public class Twist {
-		public Vector3 linear;
-		public Vector3 angular;
+		public geometry_msgs::Vector3 linear;
+		public geometry_msgs::Vector3 angular;
 	}
 }

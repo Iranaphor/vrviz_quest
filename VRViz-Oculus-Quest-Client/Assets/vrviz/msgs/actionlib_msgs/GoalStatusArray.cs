@@ -1,11 +1,11 @@
 using System;
-using vrviz.msg.std_msgs;
-using vrviz.msg.actionlib_msgs;
+using std_msgs = vrviz.msg.std_msgs;
+using actionlib_msgs = vrviz.msg.actionlib_msgs;
 
 namespace vrviz.msg.actionlib_msgs {
 	[Serializable]
 	public class GoalStatusArray {
-		public Header header;
-		public GoalStatus[] status_list;
+		public std_msgs::Header header;
+		public actionlib_msgs::GoalStatus[] status_list;
 	}
 }

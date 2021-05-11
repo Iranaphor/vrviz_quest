@@ -1,10 +1,10 @@
 using System;
-using vrviz.msg.geometry_msgs;
+using geometry_msgs = vrviz.msg.geometry_msgs;
 
 namespace vrviz.msg.geometry_msgs {
 	[Serializable]
 	public class Pose {
-		public Point position;
-		public Quaternion orientation;
+		public geometry_msgs::Point position;
+		public geometry_msgs::Quaternion orientation;
 	}
 }
