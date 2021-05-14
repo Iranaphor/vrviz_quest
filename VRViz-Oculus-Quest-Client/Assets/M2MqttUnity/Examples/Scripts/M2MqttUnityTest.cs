@@ -33,7 +33,12 @@ using uPLibrary.Networking.M2Mqtt.Messages;
 using M2MqttUnity;
 using VRViz.pocso;
 using VRViz.pocso.odom;
-using sensor_msgs = vrviz.msg.sensor_msgs;
+using VRViz.pocso.image;
+using VRViz.pocso.compressed_image;
+using VRViz.pocso.posestamped;
+
+using sensor = vrviz.msg.sensor_msgs;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Examples for the M2MQTT library (https://github.com/eclipse/paho.mqtt.m2mqtt),
@@ -46,6 +51,11 @@ namespace M2MqttUnity.Examples
     /// </summary>
     public class M2MqttUnityTest : M2MqttUnityClient
     {
+        [Header("COLOURS")]
+        public int RED;
+        public int GREEN;
+        public int BLUE;
+
         [Tooltip("Set this to true to perform a testing cycle automatically on startup")]
         public bool autoTest = false;
         [Header("User Interface")]
@@ -62,16 +72,20 @@ namespace M2MqttUnity.Examples
         private List<string> eventMessages = new List<string>();
         private bool updateUI = false;                       
         
-        private static string[] example = new string[]{"M2MQTT_Unity/test","",""};
+        private static string[] vrviz_odom = new string[]{"__dynamic_server", "/odom","vrviz/odom", "nav_msgs.msg:Odometry", "20"};
+        private static string[] vrviz_move_base_current_goal = new string[]{"__dynamic_server", "/move_base/current_goal","vrviz/move_base/current_goal", "geometry_msgs.msg:PoseStamped", "1"};
         private static string[] vrviz_camera_rgb_image_raw = new string[]{"__dynamic_server", "/camera/rgb/image_raw","vrviz/camera/rgb/image_raw", "sensor_msgs.msg:Image", "1"};
-        private static string[] vrviz_camera_depth_image_raw = new string[]{"__dynamic_server", "/camera/depth/image_raw","vrviz/camera/depth/image_raw", "sensor_msgs.msg:Image", "1"};
-        private static string[] odom = new string[]{"__dynamic_server", "/odom","vrviz/odom", "nav_msgs.msg:Odometry", "5"};
+        // private static string[] vrviz_camera_rgb_image_raw_compressed = new string[]{"__dynamic_server", "/camera/rgb/image_raw/compressed","vrviz/camera/rgb/image_raw/compressed", "sensor_msgs.msg:CompressedImage", "1"};
+        // private static string[] vrviz_camera_depth_image_raw = new string[]{"__dynamic_server", "/camera/depth/image_raw","vrviz/camera/depth/image_raw", "sensor_msgs.msg:Image", "1"};
 
-        private List<string[]> topics = new List<string[]> { odom, vrviz_camera_rgb_image_raw };
+        private List<string[]> topics = new List<string[]> { vrviz_odom, vrviz_move_base_current_goal };
         
         [Header("Robot Model")]
         public Transform robot_transform;
+        [Header("Robot Image View")]
         public GameObject rgb_panel;
+        [Header("Navigation Target")]
+        public Transform goal_transform;
 
         public void TestPublish()
         {
@@ -313,7 +327,7 @@ namespace M2MqttUnity.Examples
                     OpenTopic(ros_topic: ros_topic, 
                               mqtt_reference: mqtt_topic, 
                               msg_type: msg_type,
-                              frequency: 1,
+                              frequency: frequency,
                               latched: false,
                               qos: MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE);
 
@@ -332,80 +346,108 @@ namespace M2MqttUnity.Examples
             {
                 case "vrviz/odom":
                     ODOM_Message json_parsed_odom = JsonUtility.FromJson<ODOM_Message>(msg);
-                    SetPosition(robot_transform, json_parsed_odom);
+                    SetPose(robot_transform, json_parsed_odom.pose);
                     break;
+
+                case "vrviz/move_base/current_goal":
+                    POSE_STAMPED_Message json_parsed_goal = JsonUtility.FromJson<POSE_STAMPED_Message>(msg);
+                    SetPosition(goal_transform, json_parsed_goal.pose.position);
+                    break;
+
+                // case "vrviz/camera/rgb/image_raw/compressed":
+                    // COMPRESSED_IMAGE_Message json_parsed_compressed_image = JsonUtility.FromJson<COMPRESSED_IMAGE_Message>(msg);
+                    // client.Unsubscribe(new string[] { topic });
+                    // SetImage(rgb_panel, 480, 640, json_parsed_compressed_image.data);
+                    // break;
+
                 case "vrviz/camera/rgb/image_raw":
-                    sensor_msgs::Image json_parsed_image = JsonUtility.FromJson<sensor_msgs::Image>(msg);
-                    client.Unsubscribe(new string[] { topic });
-                    
+                    IMAGE_Message json_parsed_image = JsonUtility.FromJson<IMAGE_Message>(msg);
+                    SetImagePOSCO(rgb_panel, json_parsed_image);
+                    //https://www.reddit.com/r/Unity3D/comments/3pxim1/loading_textures_from_diskweb_without_hiccuping/cwadfm1/
+
+                    /*
+                    // sensor.Image parsed_image = JsonConvert.DeserializeObject<sensor.Image>(msg);
+                    // client.Unsubscribe(new string[] { topic });
                     if(once){
                         once=!once;
-                        Debug.LogError("MSG"); // -> "MSG"
-                        // Debug.LogError(json_parsed_image); // -> "vrviz.msg.sensor_msg.Image"
-                        Debug.LogError(json_parsed_image.header.frame_id.data);// -> "System.Byte[]"
-                        Debug.LogError(json_parsed_image.width.data); 
-                        Debug.LogError(json_parsed_image.data.Length);  // -> "0" 1228800/(640*480) => 4
-                        SetImage(rgb_panel, json_parsed_image);
+                        Debug.LogWarning(parsed_image.is_bigendian.data); // -> "MSG"
                     }
-
+                    //*/
                     break;
+
                 default:
                     break;
             }
         }
 
-        protected void SetPosition(Transform tf, ODOM_Message json)
+        protected void SetPosition(Transform tf, Position pos)
         {
-            //Format Data
-            Position parse = json.pose.pose.position;
-            Orientation orient = json.pose.pose.orientation;
-            Vector3 pos = new Quaternion(orient.x, orient.y, orient.z, orient.w).eulerAngles;
-
-            //Apply transforms
-            tf.localPosition = new Vector3(parse.x, 0, parse.y);
-            tf.localRotation = Quaternion.Euler(0,90-pos.z,0);
+            tf.localPosition = new Vector3(pos.x, 0, pos.y); //Apply transforms
         }
-        protected void SetImage(GameObject rgb_panel, sensor_msgs::Image json)
+        protected void SetOrientation(Transform tf, Orientation orient)
         {
-            // Texture2D tex = new Texture2D((int)json.width.data, (int)json.height.data);
-            Texture2D tex = new Texture2D((int)json.width.data, (int)json.height);
-            Debug.LogError("W:");
-            Debug.LogError(tex.width);
-            Debug.LogError("H:");
-            Debug.LogError(tex.height);
+            Vector3 pos = new Quaternion(orient.x, orient.y, orient.z, orient.w).eulerAngles; //Format Data
+            tf.localRotation = Quaternion.Euler(0,90-pos.z,0); //Apply transforms
+
+        }
+        protected void SetPose(Transform tf, CovariancePose pose)
+        {
+            SetPosition(tf, pose.pose.position);
+            SetOrientation(tf, pose.pose.orientation);
+        }
+        protected void SetImage(GameObject rgb_panel, int width, int height, string data)
+        {
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
             
+            Color32[] colorArray = new Color32[data.Length/4];
+            byte c1;
+            byte c2;
+            byte c3;
+            byte c4 = (byte) 255;
             
-            Color32[] colorArray = new Color32[json.data.Length/4];
-            for(var i = 0; i < json.data.Length; i+=4)
+            for(var i = 0; i < data.Length; i+=4)
             {
-                Color32 color = new Color32((byte)json.data[i + 2], (byte)json.data[i + 1], (byte)json.data[i + 0], (byte)json.data[i + 3]);
+                c1 = (byte) data[i+RED];
+                c2 = (byte) data[i+GREEN];
+                c3 = (byte) data[i+BLUE];
+                Color32 color = new Color32(c1, c2, c3, c4);
                 colorArray[i/4] = color;
             }
-            Debug.LogError(colorArray.Length);
             tex.SetPixels32(colorArray);
-
-            // https://docs.unity3d.com/ScriptReference/Texture2D.LoadRawTextureData.html
-            
-            // tex.LoadRawTextureData( Encoding.ASCII.GetBytes(json.data) );
-            // tex.LoadRawTextureData(json.byteData);
-
-            /*
-            byte[] pvrtcBytes = new byte[]
-            {
-                0x30, 0x32, 0x32, 0x32, 0xe7, 0x30, 0xaa, 0x7f, 0x32, 0x32, 0x32, 0x32, 0xf9, 0x40, 0xbc, 0x7f,
-                0x03, 0x03, 0x03, 0x03, 0xf6, 0x30, 0x02, 0x05, 0x03, 0x03, 0x03, 0x03, 0xf4, 0x30, 0x03, 0x06,
-                0x32, 0x32, 0x32, 0x32, 0xf7, 0x40, 0xaa, 0x7f, 0x32, 0xf2, 0x02, 0xa8, 0xe7, 0x30, 0xff, 0xff,
-                0x03, 0x03, 0x03, 0xff, 0xe6, 0x40, 0x00, 0x0f, 0x00, 0xff, 0x00, 0xaa, 0xe9, 0x40, 0x9f, 0xff,
-                0x5b, 0x03, 0x03, 0x03, 0xca, 0x6a, 0x0f, 0x30, 0x03, 0x03, 0x03, 0xff, 0xca, 0x68, 0x0f, 0x30,
-                0xaa, 0x94, 0x90, 0x40, 0xba, 0x5b, 0xaf, 0x68, 0x40, 0x00, 0x00, 0xff, 0xca, 0x58, 0x0f, 0x20,
-                0x00, 0x00, 0x00, 0xff, 0xe6, 0x40, 0x01, 0x2c, 0x00, 0xff, 0x00, 0xaa, 0xdb, 0x41, 0xff, 0xff,
-                0x00, 0x00, 0x00, 0xff, 0xe8, 0x40, 0x01, 0x1c, 0x00, 0xff, 0x00, 0xaa, 0xbb, 0x40, 0xff, 0xff,
-            };
-            //GetComponent<Renderer>().material.mainTexture = tex;
-            */
-
             tex.Apply();
             rgb_panel.GetComponent<RawImage>().texture = tex;
+        }
+        protected void SetImagePOSCO(GameObject rgb_panel, IMAGE_Message json)
+        {
+
+            Texture2D tex = new Texture2D((int)json.width, (int)json.height, TextureFormat.RGBA32, false);
+            
+            Color32[] colorArray = new Color32[json.data.Length/4];
+            byte c1;
+            byte c2;
+            byte c3;
+            byte c4 = (byte) 255;
+            
+            //320 == BAGR32
+
+            for(var i = 0; i < json.data.Length; i+=4)
+            {
+                c1 = (byte) json.data[i+RED];
+                c2 = (byte) json.data[i+GREEN];
+                c3 = (byte) json.data[i+BLUE];
+                // c4 = (byte) json.data[i+3];
+                
+                Color32 color = new Color32(c1, c2, c3, c4);
+                colorArray[i/4] = color;
+            }
+            tex.SetPixels32(colorArray);
+
+            // tex.LoadRawTextureData(Encoding.ASCII.GetBytes( json.data ) );//MAYBE
+            // tex.LoadRawTextureData(Encoding.Default.GetBytes( json.data ) );//MAYBE
+            // tex.LoadRawTextureData(Encoding.UTF8.GetBytes( json.data ) );//MAYBE
+            tex.Apply();
+            rgb_panel.GetComponent<RawImage>().texture = tex;
+            // Debug.LogError(rgb_panel.uvRect);
         }
         
     }

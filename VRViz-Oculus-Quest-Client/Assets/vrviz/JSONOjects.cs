@@ -3,6 +3,20 @@ using System;
 
 namespace VRViz {
     namespace pocso {
+
+        [Serializable]
+        public class Stamp{
+            public long nsecs;
+            public long secs;
+        }
+            
+        [Serializable]
+        public class Header{
+            public string frame_id;
+            public int seq;
+            public Stamp stamp;
+        }
+
         [Serializable]
         public class Position{
             public float x;
@@ -16,12 +30,6 @@ namespace VRViz {
             public float y;
             public float z;
             public float w;
-        }
-
-        [Serializable]
-        public class Stamp{
-            public long nsecs;
-            public long secs;
         }
 
         [Serializable]
@@ -82,12 +90,12 @@ namespace VRViz {
 
         namespace odom{
             
-            [Serializable]
-            public class ODOM_Header{
-                public string frame_id;
-                public int seq;
-                public Stamp stamp;
-            }
+            // [Serializable]
+            // public class ODOM_Header{
+            //     public string frame_id;
+            //     public int seq;
+            //     public Stamp stamp;
+            // }
 
             [Serializable]
             public class CovariancePose{
@@ -104,15 +112,15 @@ namespace VRViz {
 
             [Serializable]
             public class ODOM_Message{
+                public Header header;
                 public string child_frame_id;
-                public ODOM_Header header;
                 public CovariancePose pose;
                 public CovarianceTwist twist;
             }
 
         }
 
-         namespace marker{
+        namespace marker{
             [Serializable]
             public class Marker{
                 public Header header;
@@ -133,14 +141,66 @@ namespace VRViz {
                 public int action;
             }
 
-            [Serializable]
-            public class Header{
-                public string frame_id;
-                public Stamp stamp;
-            }
+            // [Serializable]
+            // public class Header{
+            //     public string frame_id;
+            //     public Stamp stamp;
+            // }
         }       
 
 
+
+        namespace image{
+
+            [Serializable]
+            public class IMAGE_Message{
+                public Header header;
+                public string child_frame_id;
+                public uint height;
+                public uint width;
+                public string encoding;
+                public byte is_bigendian;
+                public uint step;
+                public string data;
+            }
+        }
+
+
+        namespace compressed_image{
+
+            [Serializable]
+            public class COMPRESSED_IMAGE_Message{
+                public Header header;
+                public string format;
+                public string data;
+            }
+        }
+
+        namespace posestamped{
+
+            [Serializable]
+            public class POSE_STAMPED_Message{
+                public Header header;
+                public Pose pose;
+            }
+        }
+
+
+
+/*
+geometry_msgs/PoseStamped
+
+geometry_msgs/Pose pose
+  geometry_msgs/Point position
+    float64 x
+    float64 y
+    float64 z
+  geometry_msgs/Quaternion orientation
+    float64 x
+    float64 y
+    float64 z
+    float64 w
+*/
 
 
     }

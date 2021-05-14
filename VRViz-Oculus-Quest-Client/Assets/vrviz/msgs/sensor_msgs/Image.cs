@@ -7,10 +7,10 @@ namespace vrviz.msg.sensor_msgs {
 	public class Image {
 		public std_msgs::Header header;
 		public int height;
-		public std_msgs::UInt32 width;
-		public std_msgs::String encoding;
+		public int width;
+		public string encoding;
 		public std_msgs::UInt8 is_bigendian;
-		public std_msgs::UInt32 step;
+		public int step;
 		
 		public string data; 
 		// {

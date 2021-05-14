@@ -1,8 +1,10 @@
+echo "    - VRViz-Oculus-Quest-Client .vrvizrc" | awk '{ gsub("VRViz-Oculus-Quest-Client",  "\033[1;33m&\033[0m"); print }' ;
+
 function file_dir () { echo "$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" ; }
 export VRVIZ_QUEST_GIT_DIR=`file_dir`
 
 
-function vrvizrc_quest () { gedit $VRVIZ_QUEST_GIT_DIR/.vrvizrc ; }
+#function vrvizrc_quest () { gedit $VRVIZ_QUEST_GIT_DIR/.vrvizrc ; }
 
 function build_msgs () 
 {
