@@ -1,16 +1,10 @@
 using Newtonsoft.Json;
-using VRViz.Messages.string;
-using VRViz.Messages.bool;
-using System;
-using VRViz.Messages.int32;
 using VRViz.Serialiser;
-using VRViz.Messages.geometry_msgs;
-using VRViz.Messages.std_msgs;
-using VRViz.Messages.duration;
+using System;
 
 using std_msgs = VRViz.Messages.std_msgs;
-namespace VRViz.Messages.visualization_msgs {
 
+namespace VRViz.Messages.visualization_msgs {
 	public class Marker {
 		public std_msgs::Header header;
 		public std_msgs::string ns;
@@ -27,6 +21,5 @@ namespace VRViz.Messages.visualization_msgs {
 		public std_msgs::string text;
 		public std_msgs::string mesh_resource;
 		public std_msgs::bool mesh_use_embedded_materials;
-
 	}
 }

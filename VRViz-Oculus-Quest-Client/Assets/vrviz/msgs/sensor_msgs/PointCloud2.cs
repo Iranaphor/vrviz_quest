@@ -1,15 +1,10 @@
 using Newtonsoft.Json;
-using VRViz.Messages.uint32;
-using VRViz.Messages.sensor_msgs;
-using System;
-using VRViz.Messages.uint8[];
 using VRViz.Serialiser;
-using VRViz.Messages.bool;
-using VRViz.Messages.std_msgs;
+using System;
 
 using std_msgs = VRViz.Messages.std_msgs;
-namespace VRViz.Messages.sensor_msgs {
 
+namespace VRViz.Messages.sensor_msgs {
 	public class PointCloud2 {
 		public std_msgs::Header header;
 		public std_msgs::uint32 height;
@@ -20,6 +15,5 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::uint32 row_step;
 		public std_msgs::uint8[] data;
 		public std_msgs::bool is_dense;
-
 	}
 }

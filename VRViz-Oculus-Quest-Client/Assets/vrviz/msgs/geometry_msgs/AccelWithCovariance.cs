@@ -1,15 +1,12 @@
-using VRViz.Messages.geometry_msgs;
 using Newtonsoft.Json;
 using VRViz.Serialiser;
 using System;
-using VRViz.Messages.float64[36];
 
 using std_msgs = VRViz.Messages.std_msgs;
-namespace VRViz.Messages.geometry_msgs {
 
+namespace VRViz.Messages.geometry_msgs {
 	public class AccelWithCovariance {
 		public geometry_msgs::Accel accel;
 		public std_msgs::float64[36] covariance;
-
 	}
 }

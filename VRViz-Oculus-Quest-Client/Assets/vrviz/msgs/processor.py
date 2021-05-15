@@ -83,11 +83,12 @@ class primative_message(_message):
 		super(primative_message, self).__init__(msg_type)
 
 	def __repr__(self):
-		return "{0}\nnamespace VRViz.msg.{1}{{\n\t[JsonConverter(typeof({2}Converter))]\n\tpublic class {2}{{\n\t\tpublic {tm} data;\n\t}}\n}}"\
-			.format("".join(str(u) for u in self.using), 
+		return "{0}\nnamespace VRViz.msg.{1}{{\n\t[JsonConverter(typeof({2}Converter))]\n\tpublic class {2}{{\n\t\tpublic {3} data;\n\t}}\n}}"\
+			.format("".join(str(u) for u in self.using),
 					self.pckg, 
 					self.class_name, 
-					tm=type_map[self.class_name.lower()])
+					type_map[self.class_name.lower()])
+		
 		
 class basic_message(_message):
 	def __init__(self, msg_type):
@@ -96,11 +97,11 @@ class basic_message(_message):
 		contents = subprocess.check_output(["rosmsg", "show", msg_type]).split("\n")
 		spls = [item.split(" ") for item in contents if item and not item.startswith("  ") and "=" not in item] #TODO: test `echo $(rosmsg info geometry_msgs/PoseStamped | grep -v "  ")`
 		self.fields = [Field(*spl) for spl in spls ]
-		self.using.extend([Using("{0}.{1}".format(prefix_msgs, spl[0].split("/")[0])) for spl in spls if len(spl) != 1])
+		self.using.extend([Using("{0}.{1}".format(prefix_msgs, spl[0].split("/")[0])) for spl in spls if len(spl) < 2])
 
 	def __repr__(self):
-		return """{0}\nusing std_msgs = {4}.std_msgs;\nnamespace {4}.{1} {{\n\n\tpublic class {2} {{\n{3}\n\t}}\n}}"""\
-			.format("".join(set([str(u) for u in self.using])),
+		return """{0}\nusing std_msgs = {4}.std_msgs;\n\nnamespace {4}.{1} {{\n\tpublic class {2} {{\n{3}\t}}\n}}"""\
+			.format("".join(set([str(u) for u in self.using])), #TODO: replace set with ordered list
 					self.pckg,
 					self.class_name, 
 					''.join([str(f) for f in self.fields]), 
@@ -113,14 +114,36 @@ class Field(object):
 	def __init__(self, _type, _field_name, _scope="public"):
 		self._scope = _scope
 		self._field_name = _field_name
-		self._type = _type.replace("/","::") if "/" in _type else "std_msgs::{0}".format(_type)
+		
+		# Define default values
+		arr=''
+		pck="std_msgs"
+
+		#Replace defaults where appropriate
+		if "[" in _type:	#clean array
+			arr='[]'
+			_type = re.sub(r'\[.*\]','', _type)
+
+		if "/" in _type:	#clean package
+			pck, _type = _type.split("/")
+
+		if _type in capital_map: 	#capitalise
+			_type = capital_map[_type]
+
+		#Build message		
+		self._type = "{0}::{1}{2}".format(pck, _type, arr)
+		
+			
+		# Alternate Approach
+		# clsnm = _type[ _type.find("/")+1 : _type.find("[") if _type.find("[")!=-1 else None ] 
+		# _type.replace(clsnm, capital_map[ clsnm ] )if clsnm in capital_map 
+		# self._type = _type.replace("/","::") if "/" in _type else "std_msgs::{0}".format(_type)
 
 
 class Using(object):
 	def __repr__(self): return "using {0};\n".format(self._name)
 	def __str__(self): return self.__repr__()
-	def __init__(self, _name):	
-		self._name = _name
+	def __init__(self, _name): self._name = _name
 
 
 def _create_type_serialiser(type_name):
@@ -137,18 +160,14 @@ def _create_type_serialiser(type_name):
         }}
     }}
 	""".format(type_name)
-	
 
-# __all__ = ["process_file"]
-#cdAssets; cd vrviz/msgs/; python processor.py -c -t 8 -p std_msgs geometry_msgs actionlib_msgs nav_msgs sensor_msgs visualization_msgs
-
+#cdAssets; cd vrviz/msgs/; python processor.py -c -t 4 -p std_msgs geometry_msgs actionlib_msgs nav_msgs sensor_msgs visualization_msgs
 if __name__ == "__main__":
 	#Manage args
 	parser = argparse.ArgumentParser(description="Convert ROS Messages to C# objects")
 	parser.add_argument("-p","--packages", metavar="p", type=str, nargs='+',help="The package(s) to parse into C# Objects.", default='', dest="package")
 	parser.add_argument("-t","--threads", metavar="t", type=int, default=1, help="Number of threads to use", dest="threads")
-	parser.add_argument("-c","--converters", const=True, default=False, nargs='?', help="Create converters for ros messages to C# primitives", dest="convert")
-	
+	parser.add_argument("-c","--converters", const=True, default=False, nargs='?', help="Create converters for ros messages to C# primitives", dest="convert")	
 	args = parser.parse_args()
 	
 	# Get list of all availible messages
@@ -171,16 +190,17 @@ if __name__ == "__main__":
 	# Map creation of C# objects to filtered messages
 	threads = Pool(args.threads)
 	threads.map(process_message, messages)
-	# process_message(messages[0])	
+	# process_message("sensor_msgs/Joy")
+	# process_message("visualization_msgs/Marker")	
 	
-	# Compile serialiser files
+	# Compile serialiser file
 	if args.convert:
 		conversion_text = []
 		conversion_text.append("using System;\nusing UnityEngine;\nusing Newtonsoft.Json;\nusing std_msgs = VRViz.Msg.std_msgs;\n\nnamespace VRViz.Serialisers {\n\tpublic class BaseConverter : JsonConverter{\n\t\tpublic override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer){throw new NotImplementedException(\"No need to Write\");}\n\t\tpublic override bool CanWrite{get {return false;}}\n\t\tpublic override bool CanRead{get {return true;}}\n\t}\n")
 		for key in capital_map:
 			conversion_text.append(_create_type_serialiser(capital_map[key]))
 		conversion_text.append("}")
-		with open("cerealiser.cs", "w") as output:
+		with open("bran_flakes.cs", "w") as output:
 			output.writelines(conversion_text)
 
 

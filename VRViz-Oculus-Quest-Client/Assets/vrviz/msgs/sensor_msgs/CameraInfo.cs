@@ -1,17 +1,10 @@
 using Newtonsoft.Json;
-using VRViz.Messages.string;
-using VRViz.Messages.uint32;
-using VRViz.Messages.sensor_msgs;
-using System;
-using VRViz.Messages.float64[12];
-using VRViz.Messages.float64[];
 using VRViz.Serialiser;
-using VRViz.Messages.std_msgs;
-using VRViz.Messages.float64[9];
+using System;
 
 using std_msgs = VRViz.Messages.std_msgs;
-namespace VRViz.Messages.sensor_msgs {
 
+namespace VRViz.Messages.sensor_msgs {
 	public class CameraInfo {
 		public std_msgs::Header header;
 		public std_msgs::uint32 height;
@@ -24,6 +17,5 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::uint32 binning_x;
 		public std_msgs::uint32 binning_y;
 		public sensor_msgs::RegionOfInterest roi;
-
 	}
 }

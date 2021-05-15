@@ -1,13 +1,10 @@
 using Newtonsoft.Json;
-using VRViz.Messages.float32;
-using System;
-using VRViz.Messages.float32[];
 using VRViz.Serialiser;
-using VRViz.Messages.std_msgs;
+using System;
 
 using std_msgs = VRViz.Messages.std_msgs;
-namespace VRViz.Messages.sensor_msgs {
 
+namespace VRViz.Messages.sensor_msgs {
 	public class LaserScan {
 		public std_msgs::Header header;
 		public std_msgs::float32 angle_min;
@@ -19,6 +16,5 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::float32 range_max;
 		public std_msgs::float32[] ranges;
 		public std_msgs::float32[] intensities;
-
 	}
 }

@@ -1,16 +1,10 @@
 using Newtonsoft.Json;
-using VRViz.Messages.string;
-using VRViz.Messages.bool;
-using VRViz.Messages.float32;
-using System;
-using VRViz.Messages.float32[];
 using VRViz.Serialiser;
-using VRViz.Messages.std_msgs;
-using VRViz.Messages.uint8;
+using System;
 
 using std_msgs = VRViz.Messages.std_msgs;
-namespace VRViz.Messages.sensor_msgs {
 
+namespace VRViz.Messages.sensor_msgs {
 	public class BatteryState {
 		public std_msgs::Header header;
 		public std_msgs::float32 voltage;
@@ -26,6 +20,5 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::float32[] cell_voltage;
 		public std_msgs::string location;
 		public std_msgs::string serial_number;
-
 	}
 }
