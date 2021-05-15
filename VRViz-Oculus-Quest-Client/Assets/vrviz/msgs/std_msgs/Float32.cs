@@ -1,8 +1,10 @@
 using System;
+using Newtonsoft.Json;
+using VRViz.Serialiser;
 
-namespace vrviz.msg.std_msgs {
-	[Serializable]
-	public class Float32 {
+namespace VRViz.msg.std_msgs{
+	[JsonConverter(typeof(Float32Converter))]
+	public class Float32{
 		public float data;
 	}
 }

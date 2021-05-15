@@ -1,10 +1,15 @@
+using VRViz.Messages.std_msgs;
+using Newtonsoft.Json;
+using VRViz.Serialiser;
 using System;
-using std_msgs = vrviz.msg.std_msgs;
+using VRViz.Messages.int64[];
 
-namespace vrviz.msg.std_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.std_msgs {
+
 	public class Int64MultiArray {
 		public std_msgs::MultiArrayLayout layout;
-		public std_msgs::Int64[] data;
+		public std_msgs::int64[] data;
+
 	}
 }

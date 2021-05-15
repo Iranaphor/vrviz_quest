@@ -1,9 +1,13 @@
+using Newtonsoft.Json;
+using VRViz.Messages.visualization_msgs;
+using VRViz.Serialiser;
 using System;
-using visualization_msgs = vrviz.msg.visualization_msgs;
 
-namespace vrviz.msg.visualization_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.visualization_msgs {
+
 	public class MarkerArray {
 		public visualization_msgs::Marker[] markers;
+
 	}
 }

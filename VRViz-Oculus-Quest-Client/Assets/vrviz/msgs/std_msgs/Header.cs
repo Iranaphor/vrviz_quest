@@ -1,13 +1,17 @@
-using System;
 using Newtonsoft.Json;
-using stds = vrviz.msg.std_msgs;
+using VRViz.Messages.string;
+using VRViz.Messages.uint32;
+using System;
+using VRViz.Messages.time;
+using VRViz.Serialiser;
 
-namespace vrviz.msg.std_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.std_msgs {
+
 	public class Header {
-		public int seq;
-		[JsonIgnoreAttribute]
-		public int stamp;
-		public string frame_id;
+		public std_msgs::uint32 seq;
+		public std_msgs::time stamp;
+		public std_msgs::string frame_id;
+
 	}
 }

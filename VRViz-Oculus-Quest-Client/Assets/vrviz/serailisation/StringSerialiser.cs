@@ -1,11 +1,12 @@
+using System;
 using UnityEngine;
 using Newtonsoft.Json;
-using vrviz.msg.std_msgs;
-using System;
+using std_msgs = vrviz.msg.std_msgs;
+
 
 namespace VRViz.serialisers 
 {
-    public class UInt8Converter : JsonConverter
+    public class StringConverter : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
@@ -23,19 +24,16 @@ namespace VRViz.serialisers
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existing, JsonSerializer serializer){
-            UInt8 obj = new UInt8();
-            byte test = Convert.ToByte(reader.Value);
-            Debug.LogError(test);
-            // Debug.LogError(typeof(test));
-            // Debug.LogWarning(reader.GetType().getProperty("Value").GetValue("reader", null));
-            // obj.data = reader.Value;
-            obj.data = test;
+            std_msgs.String obj = new std_msgs.String();
+            Debug.LogError(reader.Value);
+            obj.data = (string)reader.Value;
+
             return obj;
         }
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(UInt8);
+            return objectType == typeof(std_msgs.String);
         }
     }
 }

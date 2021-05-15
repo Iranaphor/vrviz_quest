@@ -1,11 +1,15 @@
+using VRViz.Messages.std_msgs;
+using Newtonsoft.Json;
+using VRViz.Serialiser;
 using System;
-using std_msgs = vrviz.msg.std_msgs;
-using actionlib_msgs = vrviz.msg.actionlib_msgs;
+using VRViz.Messages.actionlib_msgs;
 
-namespace vrviz.msg.actionlib_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.actionlib_msgs {
+
 	public class GoalStatusArray {
 		public std_msgs::Header header;
 		public actionlib_msgs::GoalStatus[] status_list;
+
 	}
 }

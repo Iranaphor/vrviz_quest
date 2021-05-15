@@ -1,8 +1,10 @@
 using System;
+using Newtonsoft.Json;
+using VRViz.Serialiser;
 
-namespace vrviz.msg.std_msgs {
-	[Serializable]
-	public class Char {
+namespace VRViz.msg.std_msgs{
+	[JsonConverter(typeof(CharConverter))]
+	public class Char{
 		public char data;
 	}
 }

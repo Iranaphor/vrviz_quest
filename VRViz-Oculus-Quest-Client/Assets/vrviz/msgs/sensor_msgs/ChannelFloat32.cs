@@ -1,10 +1,15 @@
+using Newtonsoft.Json;
+using VRViz.Messages.string;
+using VRViz.Serialiser;
 using System;
-using std_msgs = vrviz.msg.std_msgs;
+using VRViz.Messages.float32[];
 
-namespace vrviz.msg.sensor_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.sensor_msgs {
+
 	public class ChannelFloat32 {
-		public std_msgs::String name;
-		public std_msgs::Float32[] values;
+		public std_msgs::string name;
+		public std_msgs::float32[] values;
+
 	}
 }

@@ -1,9 +1,13 @@
+using Newtonsoft.Json;
+using VRViz.Serialiser;
 using System;
-using sensor_msgs = vrviz.msg.sensor_msgs;
+using VRViz.Messages.sensor_msgs;
 
-namespace vrviz.msg.sensor_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.sensor_msgs {
+
 	public class JoyFeedbackArray {
 		public sensor_msgs::JoyFeedback[] array;
+
 	}
 }

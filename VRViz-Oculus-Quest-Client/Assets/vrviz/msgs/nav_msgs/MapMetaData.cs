@@ -1,14 +1,20 @@
+using Newtonsoft.Json;
+using VRViz.Messages.uint32;
+using VRViz.Messages.float32;
 using System;
-using geometry_msgs = vrviz.msg.geometry_msgs;
-using std_msgs = vrviz.msg.std_msgs;
+using VRViz.Messages.time;
+using VRViz.Serialiser;
+using VRViz.Messages.geometry_msgs;
 
-namespace vrviz.msg.nav_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.nav_msgs {
+
 	public class MapMetaData {
-		public std_msgs::Time map_load_Time;
-		public std_msgs::Float32 resolution;
-		public std_msgs::UInt32 width;
-		public std_msgs::UInt32 height;
+		public std_msgs::time map_load_time;
+		public std_msgs::float32 resolution;
+		public std_msgs::uint32 width;
+		public std_msgs::uint32 height;
 		public geometry_msgs::Pose origin;
+
 	}
 }

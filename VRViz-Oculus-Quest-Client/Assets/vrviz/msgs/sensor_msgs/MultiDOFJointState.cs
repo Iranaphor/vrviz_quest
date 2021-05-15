@@ -1,14 +1,19 @@
+using Newtonsoft.Json;
+using VRViz.Messages.geometry_msgs;
+using VRViz.Messages.string[];
 using System;
-using geometry_msgs = vrviz.msg.geometry_msgs;
-using std_msgs = vrviz.msg.std_msgs;
+using VRViz.Serialiser;
+using VRViz.Messages.std_msgs;
 
-namespace vrviz.msg.sensor_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.sensor_msgs {
+
 	public class MultiDOFJointState {
 		public std_msgs::Header header;
-		public std_msgs::String[] joint_names;
+		public std_msgs::string[] joint_names;
 		public geometry_msgs::Transform[] transforms;
 		public geometry_msgs::Twist[] twist;
 		public geometry_msgs::Wrench[] wrench;
+
 	}
 }

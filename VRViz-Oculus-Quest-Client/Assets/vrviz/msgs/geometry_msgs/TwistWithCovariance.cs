@@ -1,11 +1,15 @@
+using VRViz.Messages.geometry_msgs;
+using Newtonsoft.Json;
+using VRViz.Serialiser;
 using System;
-using geometry_msgs = vrviz.msg.geometry_msgs;
-using std_msgs = vrviz.msg.std_msgs;
+using VRViz.Messages.float64[36];
 
-namespace vrviz.msg.geometry_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.geometry_msgs {
+
 	public class TwistWithCovariance {
 		public geometry_msgs::Twist twist;
-		public std_msgs::Float64[] covariance;
+		public std_msgs::float64[36] covariance;
+
 	}
 }

@@ -1,12 +1,17 @@
+using Newtonsoft.Json;
+using VRViz.Messages.int8[];
 using System;
-using nav_msgs = vrviz.msg.nav_msgs;
-using std_msgs = vrviz.msg.std_msgs;
+using VRViz.Messages.nav_msgs;
+using VRViz.Serialiser;
+using VRViz.Messages.std_msgs;
 
-namespace vrviz.msg.nav_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.nav_msgs {
+
 	public class OccupancyGrid {
 		public std_msgs::Header header;
 		public nav_msgs::MapMetaData info;
-		public std_msgs::Int8[] data;
+		public std_msgs::int8[] data;
+
 	}
 }

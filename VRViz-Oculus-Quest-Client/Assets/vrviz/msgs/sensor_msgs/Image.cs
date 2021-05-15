@@ -1,39 +1,23 @@
+using Newtonsoft.Json;
+using VRViz.Messages.string;
+using VRViz.Messages.uint32;
 using System;
-using System.Text;
-using std_msgs = vrviz.msg.std_msgs;
+using VRViz.Serialiser;
+using VRViz.Messages.uint8[];
+using VRViz.Messages.std_msgs;
+using VRViz.Messages.uint8;
 
-namespace vrviz.msg.sensor_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.sensor_msgs {
+
 	public class Image {
 		public std_msgs::Header header;
-		public int height;
-		public int width;
-		public string encoding;
-		public std_msgs::UInt8 is_bigendian;
-		public int step;
-		
-		public string data; 
-		// {
-			// set { byteData = Encoding.UTF8.GetBytes(value); }
-			// get { return Encoding.UTF8.GetString(byteData); }
-		// }
-		// protected byte[] byteData;
-
+		public std_msgs::uint32 height;
+		public std_msgs::uint32 width;
+		public std_msgs::string encoding;
+		public std_msgs::uint8 is_bigendian;
+		public std_msgs::uint32 step;
+		public std_msgs::uint8[] data;
 
 	}
 }
-
-
-/*
-class Person
-{
-  private string name; // field
-  public string Name   // property
-  {
-    get { return name; }
-    set { name = value; }
-  }
-}
-
-
-*/

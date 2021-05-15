@@ -1,11 +1,17 @@
+using Newtonsoft.Json;
+using VRViz.Messages.int32[];
 using System;
-using std_msgs = vrviz.msg.std_msgs;
+using VRViz.Messages.float32[];
+using VRViz.Serialiser;
+using VRViz.Messages.std_msgs;
 
-namespace vrviz.msg.sensor_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.sensor_msgs {
+
 	public class Joy {
 		public std_msgs::Header header;
-		public std_msgs::Float32[] axes;
-		public std_msgs::Int32[] buttons;
+		public std_msgs::float32[] axes;
+		public std_msgs::int32[] buttons;
+
 	}
 }

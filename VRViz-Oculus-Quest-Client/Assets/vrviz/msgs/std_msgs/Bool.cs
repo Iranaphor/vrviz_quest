@@ -1,8 +1,10 @@
 using System;
+using Newtonsoft.Json;
+using VRViz.Serialiser;
 
-namespace vrviz.msg.std_msgs {
-	[Serializable]
-	public class Bool {
+namespace VRViz.msg.std_msgs{
+	[JsonConverter(typeof(BoolConverter))]
+	public class Bool{
 		public bool data;
 	}
 }

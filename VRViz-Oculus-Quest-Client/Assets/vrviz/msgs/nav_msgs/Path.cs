@@ -1,11 +1,15 @@
+using VRViz.Messages.geometry_msgs;
+using VRViz.Messages.std_msgs;
+using Newtonsoft.Json;
+using VRViz.Serialiser;
 using System;
-using geometry_msgs = vrviz.msg.geometry_msgs;
-using std_msgs = vrviz.msg.std_msgs;
 
-namespace vrviz.msg.nav_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.nav_msgs {
+
 	public class Path {
 		public std_msgs::Header header;
 		public geometry_msgs::PoseStamped[] poses;
+
 	}
 }

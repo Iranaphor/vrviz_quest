@@ -1,11 +1,10 @@
 using System;
 using Newtonsoft.Json;
-using VRViz.serialisers;
+using VRViz.Serialiser;
 
-namespace vrviz.msg.std_msgs {
-	[Serializable]
+namespace VRViz.msg.std_msgs{
 	[JsonConverter(typeof(UInt8Converter))]
-	public class UInt8 {
+	public class UInt8{
 		public byte data;
 	}
 }

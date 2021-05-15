@@ -1,10 +1,15 @@
+using VRViz.Messages.string;
+using Newtonsoft.Json;
+using VRViz.Messages.time;
+using VRViz.Serialiser;
 using System;
-using std_msgs = vrviz.msg.std_msgs;
 
-namespace vrviz.msg.actionlib_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.actionlib_msgs {
+
 	public class GoalID {
-		public std_msgs::Time stamp;
-		public std_msgs::String id;
+		public std_msgs::time stamp;
+		public std_msgs::string id;
+
 	}
 }

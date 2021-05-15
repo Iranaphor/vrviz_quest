@@ -1,9 +1,13 @@
+using Newtonsoft.Json;
+using VRViz.Messages.nav_msgs;
+using VRViz.Serialiser;
 using System;
-using nav_msgs = vrviz.msg.nav_msgs;
 
-namespace vrviz.msg.nav_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.nav_msgs {
+
 	public class GetMapResult {
 		public nav_msgs::OccupancyGrid map;
+
 	}
 }

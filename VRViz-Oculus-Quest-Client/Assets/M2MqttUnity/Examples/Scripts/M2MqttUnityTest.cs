@@ -45,19 +45,15 @@ using Newtonsoft.Json;
 /// </summary>
 namespace M2MqttUnity.Examples
 {
-
     /// <summary>
     /// Script for testing M2MQTT with a Unity UI
     /// </summary>
-    public class M2MqttUnityTest : M2MqttUnityClient
-    {
-        [Header("COLOURS")]
-        public int RED;
-        public int GREEN;
-        public int BLUE;
+    public class M2MqttUnityTest : M2MqttUnityClient {
 
         [Tooltip("Set this to true to perform a testing cycle automatically on startup")]
         public bool autoTest = false;
+        public bool once = true;
+        
         [Header("User Interface")]
         public InputField consoleInputField;
         public Toggle encryptedToggle;
@@ -67,198 +63,77 @@ namespace M2MqttUnity.Examples
         public Button disconnectButton;
         public Button testPublishButton;
         public Button clearButton;
-
-        public bool once = true;
-        private List<string> eventMessages = new List<string>();
         private bool updateUI = false;                       
+        private List<string> eventMessages = new List<string>();
+
+        protected List<string[]> topics = new List<string[]> {};
+
+
+        protected override void Start() { SetUiMessage("Ready."); base.Start(); }
+        protected override void Update() { base.Update(); if (updateUI) UpdateUI(); } // call ProcessMqttEvents()
+
+        public void TestPublish() { client.Publish("M2MQTT_Unity/test", System.Text.Encoding.UTF8.GetBytes("Test message"), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false); AddUiMessage("Test message published."); }
+        public void SetBrokerAddress(string brokerAddress){if (addressInputField && !updateUI) this.brokerAddress = brokerAddress;}
+        public void SetBrokerPort(string brokerPort) { if (portInputField && !updateUI) int.TryParse(brokerPort, out this.brokerPort); }
+        public void SetEncrypted(bool isEncrypted) { this.isEncrypted = isEncrypted; }
+        public void SetUiMessage(string msg) {if (consoleInputField != null) {consoleInputField.text = msg; updateUI = true;}}
+        public void AddUiMessage(string msg) {if (consoleInputField != null) {consoleInputField.text += msg + "\n";updateUI = true;}}
+        protected override void OnConnecting() { base.OnConnecting(); SetUiMessage("Connecting to broker on " + brokerAddress + ":" + brokerPort.ToString() + "...\n");}
+        protected override void OnConnected() {base.OnConnected();SetUiMessage("Connected to broker on " + brokerAddress + "\n");if (autoTest) {TestPublish();}}
+        protected override void OnConnectionFailed(string errorMessage) {AddUiMessage("CONNECTION FAILED! " + errorMessage);}
+        protected override void OnDisconnected(){AddUiMessage("Disconnected.");}
+        protected override void OnConnectionLost() { AddUiMessage("CONNECTION LOST!"); }
+        private void OnDestroy() { Disconnect(); }
+        private void OnValidate() {if (autoTest) autoConnect = true; }        
         
-        private static string[] vrviz_odom = new string[]{"__dynamic_server", "/odom","vrviz/odom", "nav_msgs.msg:Odometry", "20"};
-        private static string[] vrviz_move_base_current_goal = new string[]{"__dynamic_server", "/move_base/current_goal","vrviz/move_base/current_goal", "geometry_msgs.msg:PoseStamped", "1"};
-        private static string[] vrviz_camera_rgb_image_raw = new string[]{"__dynamic_server", "/camera/rgb/image_raw","vrviz/camera/rgb/image_raw", "sensor_msgs.msg:Image", "1"};
-        // private static string[] vrviz_camera_rgb_image_raw_compressed = new string[]{"__dynamic_server", "/camera/rgb/image_raw/compressed","vrviz/camera/rgb/image_raw/compressed", "sensor_msgs.msg:CompressedImage", "1"};
-        // private static string[] vrviz_camera_depth_image_raw = new string[]{"__dynamic_server", "/camera/depth/image_raw","vrviz/camera/depth/image_raw", "sensor_msgs.msg:Image", "1"};
 
-        private List<string[]> topics = new List<string[]> { vrviz_odom, vrviz_move_base_current_goal };
-        
-        [Header("Robot Model")]
-        public Transform robot_transform;
-        [Header("Robot Image View")]
-        public GameObject rgb_panel;
-        [Header("Navigation Target")]
-        public Transform goal_transform;
 
-        public void TestPublish()
-        {
-            client.Publish("M2MQTT_Unity/test", System.Text.Encoding.UTF8.GetBytes("Test message"), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
-            AddUiMessage("Test message published.");
-        }
-
-        public void SetBrokerAddress(string brokerAddress)
-        {
-            if (addressInputField && !updateUI)
-            {
-                this.brokerAddress = brokerAddress;
-            }
-        }
-
-        public void SetBrokerPort(string brokerPort)
-        {
-            if (portInputField && !updateUI)
-            {
-                int.TryParse(brokerPort, out this.brokerPort);
-            }
-        }
-
-        public void SetEncrypted(bool isEncrypted)
-        {
-            this.isEncrypted = isEncrypted;
-        }
-
-        public void SetUiMessage(string msg)
-        {
-            if (consoleInputField != null)
-            {
-                consoleInputField.text = msg;
-                updateUI = true;
-            }
-        }
-
-        public void AddUiMessage(string msg)
-        {
-            if (consoleInputField != null)
-            {
-                consoleInputField.text += msg + "\n";
-                updateUI = true;
-            }
-        }
-
-        protected override void OnConnecting()
-        {
-            base.OnConnecting();
-            SetUiMessage("Connecting to broker on " + brokerAddress + ":" + brokerPort.ToString() + "...\n");
-        }
-
-        protected override void OnConnected()
-        {
-            base.OnConnected();
-            SetUiMessage("Connected to broker on " + brokerAddress + "\n");
-
-            if (autoTest)
-            {
-                TestPublish();
-            }
-        }
-
-        protected override void OnConnectionFailed(string errorMessage)
-        {
-            AddUiMessage("CONNECTION FAILED! " + errorMessage);
-        }
-
-        protected override void OnDisconnected()
-        {
-            AddUiMessage("Disconnected.");
-        }
-
-        protected override void OnConnectionLost()
-        {
-            AddUiMessage("CONNECTION LOST!");
-        }
-
-        private void UpdateUI()
-        {
-            if (client == null)
-            {
-                if (connectButton != null)
-                {
+        private void UpdateUI() {
+            if (client == null) {
+                if (connectButton != null) {
                     connectButton.interactable = true;
                     disconnectButton.interactable = false;
                     testPublishButton.interactable = false;
                 }
             }
-            else
-            {
-                if (testPublishButton != null)
-                {
-                    testPublishButton.interactable = client.IsConnected;
-                }
-                if (disconnectButton != null)
-                {
-                    disconnectButton.interactable = client.IsConnected;
-                }
-                if (connectButton != null)
-                {
-                    connectButton.interactable = !client.IsConnected;
-                }
+            else {
+                if (testPublishButton != null) testPublishButton.interactable = client.IsConnected;
+                if (disconnectButton != null) disconnectButton.interactable = client.IsConnected;
+                if (connectButton != null) connectButton.interactable = !client.IsConnected;
             }
-            if (addressInputField != null && connectButton != null)
-            {
+            if (addressInputField != null && connectButton != null) {
                 addressInputField.interactable = connectButton.interactable;
                 addressInputField.text = brokerAddress;
             }
-            if (portInputField != null && connectButton != null)
-            {
+            if (portInputField != null && connectButton != null) {
                 portInputField.interactable = connectButton.interactable;
                 portInputField.text = brokerPort.ToString();
             }
-            if (encryptedToggle != null && connectButton != null)
-            {
+            if (encryptedToggle != null && connectButton != null) {
                 encryptedToggle.interactable = connectButton.interactable;
                 encryptedToggle.isOn = isEncrypted;
             }
-            if (clearButton != null && connectButton != null)
-            {
+            if (clearButton != null && connectButton != null) {
                 clearButton.interactable = connectButton.interactable;
             }
             updateUI = false;
         }
 
-        protected override void Start()
-        {
-            SetUiMessage("Ready.");
-            base.Start();
-        }
 
-        protected override void Update()
-        {
-            base.Update(); // call ProcessMqttEvents()
-            if (updateUI) { UpdateUI(); }
-        }
-
-        private void OnDestroy()
-        {
-            Disconnect();
-        }
-
-        private void OnValidate()
-        {
-            if (autoTest)
-            {
-                autoConnect = true;
-            }
-        }
-
-        protected override void UnsubscribeTopics()
-        {
-            foreach (string[] t in topics)
-            {
+        protected override void UnsubscribeTopics() {
+            foreach (string[] t in topics) {
                 string factory = t[0];
                 string topic = factory;
 
-                if (factory == "__dynamic_server") 
-                {
+                if (factory == "__dynamic_server") {
                     string mqtt_topic = t[2];
                     topic = mqtt_topic;
                 }
+                
                 client.Unsubscribe(new string[] { topic });
                 Debug.Log("Unsubscribed from Subscriber: " + topic);
             }
         }
-
-
-
-
-
-
 
         protected void OpenTopic(string ros_topic, string mqtt_reference, string msg_type, int frequency = 1, bool latched = false, int qos = MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE) {
             /*
@@ -292,8 +167,6 @@ namespace M2MqttUnity.Examples
             byte[] mqtt_topic_initiator = System.Text.Encoding.UTF8.GetBytes(string_to_pub);
             Debug.Log("Request to open: \n\n  " + string_to_pub + "  \n\n");
 
-
-
             //Publish message to MQTT Dynamic Server
             string topic_opener = String.Format("__dynamic_server/topic/%s", "vrviz_ros");
             //TODO: check this is the correct qos (we need qos:2)
@@ -307,16 +180,13 @@ namespace M2MqttUnity.Examples
         }
 
 
-        protected override void SubscribeTopics()
-        {
+        protected override void SubscribeTopics() {
             //TODO change msg_type to variable!!!!
-            foreach (string[] t in topics)
-            {
+            foreach (string[] t in topics) {
                 string factory = t[0];
                 string topic = factory;
 
-                if (factory == "__dynamic_server")
-                {
+                if (factory == "__dynamic_server") {
                     string ros_topic = t[1];
                     string mqtt_topic = t[2];
                     string msg_type = t[3];
@@ -335,119 +205,6 @@ namespace M2MqttUnity.Examples
                 client.Subscribe(new string[] { topic }, new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE });
                 Debug.Log("Created Subscriber to: " + topic);
             }
-        }
-
-
-        protected override void DecodeMessage(string topic, byte[] message)
-        {
-            string msg = System.Text.Encoding.UTF8.GetString(message);
-            
-            switch (topic)
-            {
-                case "vrviz/odom":
-                    ODOM_Message json_parsed_odom = JsonUtility.FromJson<ODOM_Message>(msg);
-                    SetPose(robot_transform, json_parsed_odom.pose);
-                    break;
-
-                case "vrviz/move_base/current_goal":
-                    POSE_STAMPED_Message json_parsed_goal = JsonUtility.FromJson<POSE_STAMPED_Message>(msg);
-                    SetPosition(goal_transform, json_parsed_goal.pose.position);
-                    break;
-
-                // case "vrviz/camera/rgb/image_raw/compressed":
-                    // COMPRESSED_IMAGE_Message json_parsed_compressed_image = JsonUtility.FromJson<COMPRESSED_IMAGE_Message>(msg);
-                    // client.Unsubscribe(new string[] { topic });
-                    // SetImage(rgb_panel, 480, 640, json_parsed_compressed_image.data);
-                    // break;
-
-                case "vrviz/camera/rgb/image_raw":
-                    IMAGE_Message json_parsed_image = JsonUtility.FromJson<IMAGE_Message>(msg);
-                    SetImagePOSCO(rgb_panel, json_parsed_image);
-                    //https://www.reddit.com/r/Unity3D/comments/3pxim1/loading_textures_from_diskweb_without_hiccuping/cwadfm1/
-
-                    /*
-                    // sensor.Image parsed_image = JsonConvert.DeserializeObject<sensor.Image>(msg);
-                    // client.Unsubscribe(new string[] { topic });
-                    if(once){
-                        once=!once;
-                        Debug.LogWarning(parsed_image.is_bigendian.data); // -> "MSG"
-                    }
-                    //*/
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        protected void SetPosition(Transform tf, Position pos)
-        {
-            tf.localPosition = new Vector3(pos.x, 0, pos.y); //Apply transforms
-        }
-        protected void SetOrientation(Transform tf, Orientation orient)
-        {
-            Vector3 pos = new Quaternion(orient.x, orient.y, orient.z, orient.w).eulerAngles; //Format Data
-            tf.localRotation = Quaternion.Euler(0,90-pos.z,0); //Apply transforms
-
-        }
-        protected void SetPose(Transform tf, CovariancePose pose)
-        {
-            SetPosition(tf, pose.pose.position);
-            SetOrientation(tf, pose.pose.orientation);
-        }
-        protected void SetImage(GameObject rgb_panel, int width, int height, string data)
-        {
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
-            
-            Color32[] colorArray = new Color32[data.Length/4];
-            byte c1;
-            byte c2;
-            byte c3;
-            byte c4 = (byte) 255;
-            
-            for(var i = 0; i < data.Length; i+=4)
-            {
-                c1 = (byte) data[i+RED];
-                c2 = (byte) data[i+GREEN];
-                c3 = (byte) data[i+BLUE];
-                Color32 color = new Color32(c1, c2, c3, c4);
-                colorArray[i/4] = color;
-            }
-            tex.SetPixels32(colorArray);
-            tex.Apply();
-            rgb_panel.GetComponent<RawImage>().texture = tex;
-        }
-        protected void SetImagePOSCO(GameObject rgb_panel, IMAGE_Message json)
-        {
-
-            Texture2D tex = new Texture2D((int)json.width, (int)json.height, TextureFormat.RGBA32, false);
-            
-            Color32[] colorArray = new Color32[json.data.Length/4];
-            byte c1;
-            byte c2;
-            byte c3;
-            byte c4 = (byte) 255;
-            
-            //320 == BAGR32
-
-            for(var i = 0; i < json.data.Length; i+=4)
-            {
-                c1 = (byte) json.data[i+RED];
-                c2 = (byte) json.data[i+GREEN];
-                c3 = (byte) json.data[i+BLUE];
-                // c4 = (byte) json.data[i+3];
-                
-                Color32 color = new Color32(c1, c2, c3, c4);
-                colorArray[i/4] = color;
-            }
-            tex.SetPixels32(colorArray);
-
-            // tex.LoadRawTextureData(Encoding.ASCII.GetBytes( json.data ) );//MAYBE
-            // tex.LoadRawTextureData(Encoding.Default.GetBytes( json.data ) );//MAYBE
-            // tex.LoadRawTextureData(Encoding.UTF8.GetBytes( json.data ) );//MAYBE
-            tex.Apply();
-            rgb_panel.GetComponent<RawImage>().texture = tex;
-            // Debug.LogError(rgb_panel.uvRect);
         }
         
     }

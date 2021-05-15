@@ -1,11 +1,15 @@
+using Newtonsoft.Json;
+using VRViz.Serialiser;
 using System;
-using std_msgs = vrviz.msg.std_msgs;
+using VRViz.Messages.float32;
 
-namespace vrviz.msg.geometry_msgs {
-	[Serializable]
+using std_msgs = VRViz.Messages.std_msgs;
+namespace VRViz.Messages.geometry_msgs {
+
 	public class Point32 {
-		public std_msgs::Float32 x;
-		public std_msgs::Float32 y;
-		public std_msgs::Float32 z;
+		public std_msgs::float32 x;
+		public std_msgs::float32 y;
+		public std_msgs::float32 z;
+
 	}
 }
