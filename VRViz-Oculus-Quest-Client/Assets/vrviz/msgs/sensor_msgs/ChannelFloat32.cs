@@ -6,7 +6,7 @@ using std_msgs = VRViz.Messages.std_msgs;
 
 namespace VRViz.Messages.sensor_msgs {
 	public class ChannelFloat32 {
-		public std_msgs::string name;
-		public std_msgs::float32[] values;
+		public std_msgs::String name;
+		public std_msgs::Float32[] values;
 	}
 }

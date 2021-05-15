@@ -1,3 +1,4 @@
+using VRViz.Messages.geometry_msgs;
 using Newtonsoft.Json;
 using VRViz.Serialiser;
 using System;
@@ -8,6 +9,6 @@ namespace VRViz.Messages.visualization_msgs {
 	public class InteractiveMarkerPose {
 		public std_msgs::Header header;
 		public geometry_msgs::Pose pose;
-		public std_msgs::string name;
+		public std_msgs::String name;
 	}
 }

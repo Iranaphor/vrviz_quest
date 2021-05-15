@@ -6,7 +6,7 @@ using std_msgs = VRViz.Messages.std_msgs;
 
 namespace VRViz.Messages.actionlib_msgs {
 	public class GoalID {
-		public std_msgs::time stamp;
-		public std_msgs::string id;
+		public std_msgs::Time stamp;
+		public std_msgs::String id;
 	}
 }

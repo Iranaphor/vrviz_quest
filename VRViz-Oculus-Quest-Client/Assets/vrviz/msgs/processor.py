@@ -89,7 +89,7 @@ class primative_message(_message):
 					self.class_name, 
 					type_map[self.class_name.lower()])
 		
-		
+from pprint import pprint
 class basic_message(_message):
 	def __init__(self, msg_type):
 		""" @msg_type -> "nav_msgs/Odometry" || "geometry_msgs/Transform """
@@ -97,7 +97,13 @@ class basic_message(_message):
 		contents = subprocess.check_output(["rosmsg", "show", msg_type]).split("\n")
 		spls = [item.split(" ") for item in contents if item and not item.startswith("  ") and "=" not in item] #TODO: test `echo $(rosmsg info geometry_msgs/PoseStamped | grep -v "  ")`
 		self.fields = [Field(*spl) for spl in spls ]
-		self.using.extend([Using("{0}.{1}".format(prefix_msgs, spl[0].split("/")[0])) for spl in spls if len(spl) < 2])
+
+		typs = [item[0] for item in spls if "/" in item[0]]
+		typs = [item for item in typs if not item.startswith("std_msgs/")]
+		typs = [item.split("/")[0] for item in typs]
+		self.using.extend([Using("{0}.{1}".format(prefix_msgs, item)) for item in typs])
+		# self.using.extend([Using("{0}.{1}".format(prefix_msgs, spl[0].split("/")[0])) for spl in spls if len(spl) < 2])
+
 
 	def __repr__(self):
 		return """{0}\nusing std_msgs = {4}.std_msgs;\n\nnamespace {4}.{1} {{\n\tpublic class {2} {{\n{3}\t}}\n}}"""\
@@ -141,9 +147,9 @@ class Field(object):
 
 
 class Using(object):
-	def __repr__(self): return "using {0};\n".format(self._name)
+	def __repr__(self): return "using {0};\n".format(self._pckg)
 	def __str__(self): return self.__repr__()
-	def __init__(self, _name): self._name = _name
+	def __init__(self, _pckg): self._pckg = _pckg
 
 
 def _create_type_serialiser(type_name):
@@ -200,7 +206,7 @@ if __name__ == "__main__":
 		for key in capital_map:
 			conversion_text.append(_create_type_serialiser(capital_map[key]))
 		conversion_text.append("}")
-		with open("bran_flakes.cs", "w") as output:
+		with open("SerialisationAdapters.cs", "w") as output:
 			output.writelines(conversion_text)
 
 

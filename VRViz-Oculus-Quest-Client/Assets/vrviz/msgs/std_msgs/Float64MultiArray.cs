@@ -7,6 +7,6 @@ using std_msgs = VRViz.Messages.std_msgs;
 namespace VRViz.Messages.std_msgs {
 	public class Float64MultiArray {
 		public std_msgs::MultiArrayLayout layout;
-		public std_msgs::float64[] data;
+		public std_msgs::Float64[] data;
 	}
 }

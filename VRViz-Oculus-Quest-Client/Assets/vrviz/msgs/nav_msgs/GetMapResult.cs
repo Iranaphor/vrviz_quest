@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using VRViz.Messages.nav_msgs;
 using VRViz.Serialiser;
 using System;
 

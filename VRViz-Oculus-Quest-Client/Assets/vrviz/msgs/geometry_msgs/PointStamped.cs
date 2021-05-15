@@ -1,3 +1,4 @@
+using VRViz.Messages.geometry_msgs;
 using Newtonsoft.Json;
 using VRViz.Serialiser;
 using System;

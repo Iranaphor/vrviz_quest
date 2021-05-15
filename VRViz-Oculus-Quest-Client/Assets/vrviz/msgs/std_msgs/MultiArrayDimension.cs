@@ -6,8 +6,8 @@ using std_msgs = VRViz.Messages.std_msgs;
 
 namespace VRViz.Messages.std_msgs {
 	public class MultiArrayDimension {
-		public std_msgs::string label;
-		public std_msgs::uint32 size;
-		public std_msgs::uint32 stride;
+		public std_msgs::String label;
+		public std_msgs::UInt32 size;
+		public std_msgs::UInt32 stride;
 	}
 }
