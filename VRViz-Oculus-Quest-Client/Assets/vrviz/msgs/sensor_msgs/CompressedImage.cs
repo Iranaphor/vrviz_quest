@@ -9,5 +9,6 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::Header header;
 		public std_msgs::String format;
 		public std_msgs::UInt8[] data;
+		public static string ToRosString() { return "sensor_msgs.msg:CompressedImage"; }
 	}
 }

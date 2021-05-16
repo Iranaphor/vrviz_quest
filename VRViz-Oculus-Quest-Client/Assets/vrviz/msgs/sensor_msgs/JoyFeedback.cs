@@ -9,5 +9,6 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::UInt8 type;
 		public std_msgs::UInt8 id;
 		public std_msgs::Float32 intensity;
+		public static string ToRosString() { return "sensor_msgs.msg:JoyFeedback"; }
 	}
 }

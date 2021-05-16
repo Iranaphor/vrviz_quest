@@ -9,5 +9,6 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::Header header;
 		public std_msgs::Float64 relative_humidity;
 		public std_msgs::Float64 variance;
+		public static string ToRosString() { return "sensor_msgs.msg:RelativeHumidity"; }
 	}
 }

@@ -9,5 +9,6 @@ namespace VRViz.Messages.geometry_msgs {
 		public std_msgs::Float64 x;
 		public std_msgs::Float64 y;
 		public std_msgs::Float64 theta;
+		public static string ToRosString() { return "geometry_msgs.msg:Pose2D"; }
 	}
 }

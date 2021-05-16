@@ -12,5 +12,6 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::Float32 min_range;
 		public std_msgs::Float32 max_range;
 		public std_msgs::Float32 range;
+		public static string ToRosString() { return "sensor_msgs.msg:Range"; }
 	}
 }

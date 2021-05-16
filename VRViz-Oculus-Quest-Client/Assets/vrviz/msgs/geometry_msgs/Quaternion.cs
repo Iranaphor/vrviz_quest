@@ -10,5 +10,6 @@ namespace VRViz.Messages.geometry_msgs {
 		public std_msgs::Float64 y;
 		public std_msgs::Float64 z;
 		public std_msgs::Float64 w;
+		public static string ToRosString() { return "geometry_msgs.msg:Quaternion"; }
 	}
 }

@@ -116,7 +116,7 @@ namespace M2MqttUnity
         protected virtual void OnConnected()
         {
             Debug.LogFormat("Connected to {0}:{1}...\n", brokerAddress, brokerPort.ToString());
-
+            
             SubscribeTopics();
 
             if (ConnectionSucceeded != null)
@@ -215,13 +215,11 @@ namespace M2MqttUnity
 
         protected virtual void ProcessMqttEvents()
         {
-            // process messages in the main queue
-            SwapMqttMessageQueues();
-            ProcessMqttMessageBackgroundQueue();
-            // process messages income in the meanwhile
-            SwapMqttMessageQueues();
-            ProcessMqttMessageBackgroundQueue();
-
+            // process messages in the main queue then messages income in the meanwhile
+            for (int i = 0; i <= 1; i++) {
+                SwapMqttMessageQueues();
+                ProcessMqttMessageBackgroundQueue();
+            }
             if (mqttClientConnectionClosed)
             {
                 mqttClientConnectionClosed = false;

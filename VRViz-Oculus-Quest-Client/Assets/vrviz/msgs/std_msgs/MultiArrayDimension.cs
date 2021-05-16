@@ -9,5 +9,6 @@ namespace VRViz.Messages.std_msgs {
 		public std_msgs::String label;
 		public std_msgs::UInt32 size;
 		public std_msgs::UInt32 stride;
+		public static string ToRosString() { return "std_msgs.msg:MultiArrayDimension"; }
 	}
 }

@@ -8,5 +8,6 @@ namespace VRViz.Messages.actionlib_msgs {
 	public class GoalID {
 		public std_msgs::Time stamp;
 		public std_msgs::String id;
+		public static string ToRosString() { return "actionlib_msgs.msg:GoalID"; }
 	}
 }

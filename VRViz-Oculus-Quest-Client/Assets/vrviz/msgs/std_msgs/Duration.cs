@@ -2,9 +2,10 @@ using System;
 using Newtonsoft.Json;
 using VRViz.Serialiser;
 
-namespace VRViz.msg.std_msgs{
+namespace VRViz.Messages.std_msgs {
 	[JsonConverter(typeof(DurationConverter))]
 	public class Duration{
-		public Duration data;
+		public ulong data;
+	public static string ToRosString() { return "std_msgs.msg:Duration"; }
 	}
 }

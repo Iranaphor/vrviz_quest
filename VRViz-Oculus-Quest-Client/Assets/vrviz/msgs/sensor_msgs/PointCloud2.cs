@@ -1,7 +1,7 @@
+using sensor_msgs = VRViz.Messages.sensor_msgs;
 using Newtonsoft.Json;
 using VRViz.Serialiser;
 using System;
-using VRViz.Messages.sensor_msgs;
 
 using std_msgs = VRViz.Messages.std_msgs;
 
@@ -16,5 +16,6 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::UInt32 row_step;
 		public std_msgs::UInt8[] data;
 		public std_msgs::Bool is_dense;
+		public static string ToRosString() { return "sensor_msgs.msg:PointCloud2"; }
 	}
 }

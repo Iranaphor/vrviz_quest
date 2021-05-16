@@ -11,5 +11,6 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::UInt32 height;
 		public std_msgs::UInt32 width;
 		public std_msgs::Bool do_rectify;
+		public static string ToRosString() { return "sensor_msgs.msg:RegionOfInterest"; }
 	}
 }

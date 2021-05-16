@@ -1,7 +1,7 @@
-using VRViz.Messages.geometry_msgs;
 using Newtonsoft.Json;
 using VRViz.Serialiser;
 using System;
+using geometry_msgs = VRViz.Messages.geometry_msgs;
 
 using std_msgs = VRViz.Messages.std_msgs;
 
@@ -22,5 +22,6 @@ namespace VRViz.Messages.visualization_msgs {
 		public std_msgs::String text;
 		public std_msgs::String mesh_resource;
 		public std_msgs::Bool mesh_use_embedded_materials;
+		public static string ToRosString() { return "visualization_msgs.msg:Marker"; }
 	}
 }

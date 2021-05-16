@@ -3,6 +3,7 @@ import os
 import subprocess
 import argparse
 import shutil
+from pprint import pprint
 from multiprocessing import Pool
 
 
@@ -17,15 +18,15 @@ type_map = {
 	"int16": "short",#short
 	"int32": "int",#int
 	"int64": "long",#long
-	"float16": "half", #float?
+	# "float16": "half", #float?
 	"float32": "float", #double?
 	"float64": "double", #decimal?
 	"string": "string",
-	"time": "Time",
 	"bool": "bool",
 	"char": "char",
 	"byte": "byte",
-	"duration": "Duration"
+	"time": "ulong",
+	"duration": "ulong"
 }
 
 # Remapping for std_msgs.msg references to C# objects
@@ -38,7 +39,7 @@ capital_map = {
 	"int16":"Int16",
 	"int32":"Int32",
 	"int64":"Int64",
-	"float16":"Float16",
+	# "float16":"Float16",
 	"float32":"Float32",
 	"float64":"Float64",
 	"string": "String",
@@ -49,6 +50,16 @@ capital_map = {
 	"duration": "Duration"
 }
 
+convert_map = {
+	"int8":"SByte",
+	"uint8":"Byte",
+	"float32":"Single",
+	"float64":"Double",
+	"bool":"Boolean",
+	"duration":"UInt64",
+	"time":"UInt64"
+}
+
 prefix_msgs = "VRViz.Messages"
 prefix_serialiser = "VRViz.Serialiser"
 
@@ -57,11 +68,33 @@ prefix_serialiser = "VRViz.Serialiser"
 Newtonsoft Seraliser Class definitions
 """
 
+"Assets/vrviz/msgs/actionlib_msgs/GoalID.cs(9,20): error CS0234: The type or namespace name 'Time' does not exist in the namespace 'VRViz.Messages.std_msgs'"
+
 def process_message(msg_type):
-	message = create_msg_object(msg_type)
 	pckg, class_name = msg_type.split("/")
+	if msg_type == "std_msgs/Time":
+		msg = _create_time_msg()
+	else:
+		message = create_msg_object(msg_type)
+		msg = message.__repr__()
+
 	with open(os.path.join(pckg, class_name+".cs"), "w") as output:
-		output.write(message.__repr__())
+		output.write(msg)
+
+
+def _create_time_msg():
+	return """using System;
+using Newtonsoft.Json;
+using VRViz.Serialiser;
+
+namespace VRViz.Messages.std_msgs {
+	public class Time{
+		public ulong secs;
+		public ulong nsecs;
+		public static string ToRosString() { return "std_msgs.msg:Time"; }
+	}
+}
+"""
 
 
 def create_msg_object(msg_type):
@@ -76,6 +109,9 @@ class _message(object):
 		self.pckg, self.class_name = msg_type.split("/")
 		self.using = [Using("System"), Using("Newtonsoft.Json"), Using(prefix_serialiser)]
 
+	def as_string(self):
+		return "\tpublic static string ToRosString() {{ return \"{0}.msg:{1}\"; }}\n".format(self.pckg, self.class_name)
+
 
 class primative_message(_message):
 	def __init__(self, msg_type):
@@ -83,13 +119,16 @@ class primative_message(_message):
 		super(primative_message, self).__init__(msg_type)
 
 	def __repr__(self):
-		return "{0}\nnamespace VRViz.msg.{1}{{\n\t[JsonConverter(typeof({2}Converter))]\n\tpublic class {2}{{\n\t\tpublic {3} data;\n\t}}\n}}"\
+		return "{0}\nnamespace {1}.{2} {{\n\t[JsonConverter(typeof({3}Converter))]\n\tpublic class {3}{{\n\t\tpublic {4} data;\n{5}\t}}\n}}"\
 			.format("".join(str(u) for u in self.using),
+					prefix_msgs,
 					self.pckg, 
 					self.class_name, 
-					type_map[self.class_name.lower()])
+					type_map[self.class_name.lower()],
+					self.as_string()
+					)
 		
-from pprint import pprint
+
 class basic_message(_message):
 	def __init__(self, msg_type):
 		""" @msg_type -> "nav_msgs/Odometry" || "geometry_msgs/Transform """
@@ -101,17 +140,18 @@ class basic_message(_message):
 		typs = [item[0] for item in spls if "/" in item[0]]
 		typs = [item for item in typs if not item.startswith("std_msgs/")]
 		typs = [item.split("/")[0] for item in typs]
-		self.using.extend([Using("{0}.{1}".format(prefix_msgs, item)) for item in typs])
-		# self.using.extend([Using("{0}.{1}".format(prefix_msgs, spl[0].split("/")[0])) for spl in spls if len(spl) < 2])
+		self.using.extend([Using("{1} = {0}.{1}".format(prefix_msgs, item)) for item in typs])
 
 
 	def __repr__(self):
-		return """{0}\nusing std_msgs = {4}.std_msgs;\n\nnamespace {4}.{1} {{\n\tpublic class {2} {{\n{3}\t}}\n}}"""\
+		return """{0}\nusing std_msgs = {4}.std_msgs;\n\nnamespace {4}.{1} {{\n\tpublic class {2} {{\n{3}\t{5}\t}}\n}}"""\
 			.format("".join(set([str(u) for u in self.using])), #TODO: replace set with ordered list
 					self.pckg,
 					self.class_name, 
 					''.join([str(f) for f in self.fields]), 
-					prefix_msgs)
+					prefix_msgs,
+					self.as_string()
+					)
 
 
 class Field(object):
@@ -152,20 +192,41 @@ class Using(object):
 	def __init__(self, _pckg): self._pckg = _pckg
 
 
-def _create_type_serialiser(type_name):
+def _create_file_serialiser():
+	return """
+using System;
+using UnityEngine;
+using Newtonsoft.Json;
+using std_msgs = VRViz.Messages.std_msgs;
+
+namespace VRViz.Serialiser {
+	
+	public class BaseConverter : JsonConverter{
+		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer){throw new NotImplementedException(\"No need to Write\");}
+		public override bool CanWrite{get {return false;}}
+		public override bool CanRead{get {return true;}}
+		public override object ReadJson(JsonReader r, Type o, object e, JsonSerializer s){ return e; }
+        public override bool CanConvert(Type o) { return true; }
+	}
+
+"""
+
+def _create_type_serialiser(type_name, convert_name=None):
 	return """
 	 //Autogenerated NewtonSoft Json type converters for ROS std_msgs messages following the format of ;=>
 	 public class {0}Converter : BaseConverter {{
         public override object ReadJson(JsonReader reader, Type objectType, object existing, JsonSerializer serializer){{
             std_msgs.{0} obj = new std_msgs.{0}();
-            obj.data = Convert.To{0}(reader.Value);
+            obj.data = Convert.To{1}(reader.Value);
             return obj;	
         }}
         public override bool CanConvert(Type objectType) {{
             return objectType == typeof(std_msgs.{0});
         }}
     }}
-	""".format(type_name)
+	""".format(type_name, convert_name or type_name)
+
+
 
 #cdAssets; cd vrviz/msgs/; python processor.py -c -t 4 -p std_msgs geometry_msgs actionlib_msgs nav_msgs sensor_msgs visualization_msgs
 if __name__ == "__main__":
@@ -202,9 +263,14 @@ if __name__ == "__main__":
 	# Compile serialiser file
 	if args.convert:
 		conversion_text = []
-		conversion_text.append("using System;\nusing UnityEngine;\nusing Newtonsoft.Json;\nusing std_msgs = VRViz.Msg.std_msgs;\n\nnamespace VRViz.Serialisers {\n\tpublic class BaseConverter : JsonConverter{\n\t\tpublic override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer){throw new NotImplementedException(\"No need to Write\");}\n\t\tpublic override bool CanWrite{get {return false;}}\n\t\tpublic override bool CanRead{get {return true;}}\n\t}\n")
+		conversion_text.append(_create_file_serialiser())
 		for key in capital_map:
-			conversion_text.append(_create_type_serialiser(capital_map[key]))
+			if key == "time":
+				continue
+			elif key in convert_map:
+				conversion_text.append(_create_type_serialiser(capital_map[key], convert_map[key]))
+			else:
+				conversion_text.append(_create_type_serialiser(capital_map[key]))
 		conversion_text.append("}")
 		with open("SerialisationAdapters.cs", "w") as output:
 			output.writelines(conversion_text)

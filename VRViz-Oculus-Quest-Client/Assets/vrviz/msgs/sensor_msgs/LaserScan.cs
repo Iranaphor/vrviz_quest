@@ -16,5 +16,6 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::Float32 range_max;
 		public std_msgs::Float32[] ranges;
 		public std_msgs::Float32[] intensities;
+		public static string ToRosString() { return "sensor_msgs.msg:LaserScan"; }
 	}
 }

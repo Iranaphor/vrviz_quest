@@ -1,5 +1,5 @@
 using Newtonsoft.Json;
-using VRViz.Messages.visualization_msgs;
+using visualization_msgs = VRViz.Messages.visualization_msgs;
 using VRViz.Serialiser;
 using System;
 
@@ -13,5 +13,6 @@ namespace VRViz.Messages.visualization_msgs {
 		public visualization_msgs::InteractiveMarker[] markers;
 		public visualization_msgs::InteractiveMarkerPose[] poses;
 		public std_msgs::String[] erases;
+		public static string ToRosString() { return "visualization_msgs.msg:InteractiveMarkerUpdate"; }
 	}
 }

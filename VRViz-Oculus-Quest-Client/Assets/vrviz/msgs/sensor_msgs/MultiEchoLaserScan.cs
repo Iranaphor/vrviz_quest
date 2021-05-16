@@ -1,7 +1,7 @@
+using sensor_msgs = VRViz.Messages.sensor_msgs;
 using Newtonsoft.Json;
 using VRViz.Serialiser;
 using System;
-using VRViz.Messages.sensor_msgs;
 
 using std_msgs = VRViz.Messages.std_msgs;
 
@@ -17,5 +17,6 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::Float32 range_max;
 		public sensor_msgs::LaserEcho[] ranges;
 		public sensor_msgs::LaserEcho[] intensities;
+		public static string ToRosString() { return "sensor_msgs.msg:MultiEchoLaserScan"; }
 	}
 }

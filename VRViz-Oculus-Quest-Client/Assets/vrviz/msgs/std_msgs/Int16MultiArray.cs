@@ -8,5 +8,6 @@ namespace VRViz.Messages.std_msgs {
 	public class Int16MultiArray {
 		public std_msgs::MultiArrayLayout layout;
 		public std_msgs::Int16[] data;
+		public static string ToRosString() { return "std_msgs.msg:Int16MultiArray"; }
 	}
 }

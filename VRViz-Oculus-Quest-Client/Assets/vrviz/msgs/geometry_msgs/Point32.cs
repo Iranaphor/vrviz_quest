@@ -9,5 +9,6 @@ namespace VRViz.Messages.geometry_msgs {
 		public std_msgs::Float32 x;
 		public std_msgs::Float32 y;
 		public std_msgs::Float32 z;
+		public static string ToRosString() { return "geometry_msgs.msg:Point32"; }
 	}
 }

@@ -1,7 +1,7 @@
+using sensor_msgs = VRViz.Messages.sensor_msgs;
 using Newtonsoft.Json;
 using VRViz.Serialiser;
 using System;
-using VRViz.Messages.sensor_msgs;
 
 using std_msgs = VRViz.Messages.std_msgs;
 
@@ -18,5 +18,6 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::UInt32 binning_x;
 		public std_msgs::UInt32 binning_y;
 		public sensor_msgs::RegionOfInterest roi;
+		public static string ToRosString() { return "sensor_msgs.msg:CameraInfo"; }
 	}
 }

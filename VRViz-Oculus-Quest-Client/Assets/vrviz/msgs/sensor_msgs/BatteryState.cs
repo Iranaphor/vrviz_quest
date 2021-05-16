@@ -20,5 +20,6 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::Float32[] cell_voltage;
 		public std_msgs::String location;
 		public std_msgs::String serial_number;
+		public static string ToRosString() { return "sensor_msgs.msg:BatteryState"; }
 	}
 }

@@ -11,5 +11,6 @@ namespace VRViz.Messages.visualization_msgs {
 		public std_msgs::String title;
 		public std_msgs::String command;
 		public std_msgs::UInt8 command_type;
+		public static string ToRosString() { return "visualization_msgs.msg:MenuEntry"; }
 	}
 }

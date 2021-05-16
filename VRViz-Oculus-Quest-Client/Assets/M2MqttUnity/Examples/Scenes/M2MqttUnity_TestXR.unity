@@ -3426,6 +3426,7 @@ MonoBehaviour:
   mqttUserName: 
   mqttPassword: 
   autoTest: 0
+  once: 1
   consoleInputField: {fileID: 221991987}
   encryptedToggle: {fileID: 1740149083}
   addressInputField: {fileID: 1275266004}
@@ -3434,9 +3435,8 @@ MonoBehaviour:
   disconnectButton: {fileID: 584712945}
   testPublishButton: {fileID: 669316352}
   clearButton: {fileID: 1573663948}
-  once: 1
   RED: 3
-  GREEN: 2
+  GREEN: 0
   BLUE: 0
   robot_transform: {fileID: 604540451}
   rgb_panel: {fileID: 1279630488}

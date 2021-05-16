@@ -23,21 +23,23 @@ SOFTWARE.
 */
 
 using System;
+using System.Timers;
 using System.Collections;
 using System.Collections.Generic;
+using StopWatch = System.Diagnostics;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 using M2MqttUnity;
-using VRViz.pocso;
-using VRViz.pocso.odom;
-using VRViz.pocso.image;
-using VRViz.pocso.compressed_image;
-using VRViz.pocso.posestamped;
 
-using sensor = vrviz.msg.sensor_msgs;
+using TopicOpener = VRViz.Communications.TopicOpener;
+
+using std_msgs = VRViz.Messages.std_msgs;
+using nav_msgs = VRViz.Messages.nav_msgs;
+using sensor_msgs = VRViz.Messages.sensor_msgs;
+using geometry_msgs = VRViz.Messages.geometry_msgs;
 using Newtonsoft.Json;
 
 /// <summary>
@@ -45,7 +47,6 @@ using Newtonsoft.Json;
 /// </summary>
 namespace M2MqttUnity.Examples
 {
-
     /// <summary>
     /// Script for testing M2MQTT with a Unity UI
     /// </summary>
@@ -58,56 +59,62 @@ namespace M2MqttUnity.Examples
         public int BLUE;
 
         [Header("Topic Modifiers")]
-        private bool placeholder;
+        private static List<TopicOpener> topics_to_open = new List<TopicOpener>();
 
         [Header("Odometry")]
         public Transform robot_transform;
-        private static string[] vrviz_odom = new string[]{"__dynamic_server", "/odom","vrviz/odom", "nav_msgs.msg:Odometry", "20"};
+        private TopicOpener vrviz_odom = new TopicOpener(ros_topic:"/odom", msg_type:nav_msgs::Odometry.ToRosString(), frequency:20);
 
         [Header("Image Raw")]
         public GameObject rgb_panel;
-        private static string[] vrviz_camera_rgb_image_raw = new string[]{"__dynamic_server", "/camera/rgb/image_raw","vrviz/camera/rgb/image_raw", "sensor_msgs.msg:Image", "1"};
+        private TopicOpener vrviz_camera_rgb_image_raw = new TopicOpener(ros_topic:"/camera/rgb/image_raw", msg_type:sensor_msgs::Image.ToRosString());
+        private Texture2D tex;
+        private Boolean tex_once = True;
 
         [Header("Goal")]
         public Transform goal_transform;
-        private static string[] vrviz_move_base_current_goal = new string[]{"__dynamic_server", "/move_base/current_goal","vrviz/move_base/current_goal", "geometry_msgs.msg:PoseStamped", "1"};
+        private TopicOpener vrviz_move_base_current_goal = new TopicOpener(ros_topic:"/move_base/current_goal", msg_type:geometry_msgs::PoseStamped.ToRosString(), latched:true);
+            
+        [Header("Path")]
+        // public GameObject path_collection;
+        private TopicOpener vrviz_move_base_navfnros_plan = new TopicOpener(ros_topic:"/move_base/NavfnROS/plan", msg_type:nav_msgs::Path.ToRosString(), latched:true);
+            
 
         
-        // private static string[] vrviz_camera_rgb_image_raw_compressed = new string[]{"__dynamic_server", "/camera/rgb/image_raw/compressed","vrviz/camera/rgb/image_raw/compressed", "sensor_msgs.msg:CompressedImage", "1"};
-        // private static string[] vrviz_camera_depth_image_raw = new string[]{"__dynamic_server", "/camera/depth/image_raw","vrviz/camera/depth/image_raw", "sensor_msgs.msg:Image", "1"};
-        
-
+        protected override void SubscribeTopics() { foreach (TopicOpener o in topics_to_open) o.open_topic(client);}
         protected override void Start() {
-            this.topics = new List<string[]> { vrviz_odom, vrviz_move_base_current_goal, vrviz_camera_rgb_image_raw };
+            topics_to_open.Add(vrviz_odom);
+            topics_to_open.Add(vrviz_camera_rgb_image_raw);
+            topics_to_open.Add(vrviz_move_base_current_goal);
+            // topics_to_open.Add(vrviz_move_base_navfnros_plan);
             base.Start();
         }
 
+
+
         protected override void DecodeMessage(string topic, byte[] message) {
             string msg = System.Text.Encoding.UTF8.GetString(message);
-            
             switch (topic) {
-                case "vrviz/odom":
-                    ODOM_Message json_parsed_odom = JsonUtility.FromJson<ODOM_Message>(msg);
-                    SetPose(robot_transform, json_parsed_odom.pose);
+                case "vrviz/odom":  // More accurate, less active: /move_base/feedback/feedback/pose
+                    nav_msgs::Odometry json1 = JsonConvert.DeserializeObject<nav_msgs::Odometry>(msg);
+                    SetPose(robot_transform, json1.pose.pose);
                     break;
 
                 case "vrviz/move_base/current_goal":
-                    POSE_STAMPED_Message json_parsed_goal = JsonUtility.FromJson<POSE_STAMPED_Message>(msg);
-                    SetPosition(goal_transform, json_parsed_goal.pose.position);
+                    geometry_msgs::PoseStamped json2 = JsonConvert.DeserializeObject<geometry_msgs::PoseStamped>(msg);
+                    SetPosition(goal_transform, json2.pose.position);
                     break;
 
                 case "vrviz/camera/rgb/image_raw":
-                    IMAGE_Message json_image = JsonUtility.FromJson<IMAGE_Message>(msg);
-                    SetImage(rgb_panel, (int)json_image.width, (int)json_image.height, json_image.data);
-
-                    sensor.Image parsed_image = JsonConvert.DeserializeObject<sensor.Image>(msg);
-                    if(once){
-                        once=!once;
-                        Debug.LogError(parsed_image.width.data);
-                    }
-                    
-
                     // client.Unsubscribe(new string[] { topic });
+                    sensor_msgs::Image json3 = JsonConvert.DeserializeObject<sensor_msgs::Image>(msg);
+                    if (tex_once) { tex_once = false;  this.tex = new Texture2D((int)json3.width.data, (int)json3.height.data, TextureFormat.RGBA32, false); }
+                    SetImage(rgb_panel, json3.data, this.tex);
+                    break;
+
+                case "/move_base/NavfnROS/plan":
+                    Debug.LogError(msg);
+                    nav_msgs::Path json4 = JsonConvert.DeserializeObject<nav_msgs::Path>(msg);
                     break;
 
                 default:
@@ -115,45 +122,71 @@ namespace M2MqttUnity.Examples
             }
         }
 
-
-
-
-        protected void SetPosition(Transform tf, Position pos) {
-            tf.localPosition = new Vector3(pos.x, 0, pos.y); //Apply transforms
+        protected void SetPosition(Transform tf, geometry_msgs::Point pos) {
+            tf.localPosition = new Vector3((float)pos.x.data, (float)0, (float)pos.y.data); //Apply transforms
         }
 
-        protected void SetOrientation(Transform tf, Orientation orient) {
-            Vector3 pos = new Quaternion(orient.x, orient.y, orient.z, orient.w).eulerAngles; //Format Data
+        protected void SetOrientation(Transform tf, geometry_msgs::Quaternion orient) {
+            Vector3 pos = new Quaternion((float)orient.x.data, (float)orient.y.data, (float)orient.z.data, (float)orient.w.data).eulerAngles; //Format Data
             tf.localRotation = Quaternion.Euler(0,90-pos.z,0); //Apply transforms
 
         }
 
-        protected void SetPose(Transform tf, CovariancePose pose) {
-            SetPosition(tf, pose.pose.position);
-            SetOrientation(tf, pose.pose.orientation);
+        protected void SetPose(Transform tf, geometry_msgs::Pose pose) {
+            SetPosition(tf, pose.position);
+            SetOrientation(tf, pose.orientation);
         }
 
-        protected void SetImage(GameObject rgb_panel, int width, int height, string data) {
+        protected void SetImage(GameObject rgb_panel, std_msgs::UInt8[] data, Texture2D tex) {
             //https://www.reddit.com/r/Unity3D/comments/3pxim1/loading_textures_from_diskweb_without_hiccuping/cwadfm1/
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
-            
-            Color32[] colorArray = new Color32[data.Length/4];
-            byte c1;
-            byte c2;
-            byte c3;
-            byte c4 = (byte) 255;
-            
-            for(var i = 0; i < data.Length; i+=4) {
-                c1 = (byte) data[i+RED];
-                c2 = (byte) data[i+GREEN];
-                c3 = (byte) data[i+BLUE];
-                Color32 color = new Color32(c1, c2, c3, c4);
-                colorArray[i/4] = color;
+            // StopWatch.Stopwatch stopwatch0 = StopWatch.Stopwatch.StartNew(); 
+
+            // StopWatch.Stopwatch stopwatch1b = StopWatch.Stopwatch.StartNew(); 
+            byte[] col = new byte[data.Length];
+            // stopwatch1b.Stop();
+
+            // StopWatch.Stopwatch stopwatch1c = StopWatch.Stopwatch.StartNew(); 
+            for (int i = 0; i < data.Length; i+=4)
+            {
+                col[i+0] = data[i+RED].data;
+                col[i+1] = data[i+GREEN].data;
+                col[i+2] = data[i+BLUE].data;
+                col[i+3] = (byte)255;
             }
-            tex.SetPixels32(colorArray);
+            // stopwatch1c.Stop();
+
+            // StopWatch.Stopwatch stopwatch2 = StopWatch.Stopwatch.StartNew(); 
+            tex.LoadRawTextureData(col);
+            // stopwatch2.Stop();
+
+            // StopWatch.Stopwatch stopwatch3 = StopWatch.Stopwatch.StartNew(); 
             tex.Apply();
+            // stopwatch3.Stop();
+
+            // StopWatch.Stopwatch stopwatch4 = StopWatch.Stopwatch.StartNew(); 
             rgb_panel.GetComponent<RawImage>().texture = tex;
+            // stopwatch4.Stop();
+
+            // stopwatch0.Stop();
+            // Debug.Log("Stopwatches:");
+            // Debug.Log(stopwatch0.ElapsedMilliseconds);
+            // Debug.Log(stopwatch1b.ElapsedMilliseconds);
+            // Debug.Log(stopwatch1c.ElapsedMilliseconds);
+            // Debug.Log(stopwatch2.ElapsedMilliseconds);
+            // Debug.Log(stopwatch3.ElapsedMilliseconds);
+            // Debug.Log(stopwatch4.ElapsedMilliseconds);
+            // Debug.Log("Stopwatches End.");
+
         }
         
+        public float scale_byte(byte bin){
+            return Convert.ToSingle(bin)/255;
+        }
+
+        
+
     }
+
+    
+
 }

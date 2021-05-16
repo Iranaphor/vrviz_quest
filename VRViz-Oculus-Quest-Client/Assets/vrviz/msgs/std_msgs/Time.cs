@@ -2,9 +2,10 @@ using System;
 using Newtonsoft.Json;
 using VRViz.Serialiser;
 
-namespace VRViz.msg.std_msgs{
-	[JsonConverter(typeof(TimeConverter))]
+namespace VRViz.Messages.std_msgs {
 	public class Time{
-		public Time data;
+		public ulong secs;
+		public ulong nsecs;
+		public static string ToRosString() { return "std_msgs.msg:Time"; }
 	}
 }

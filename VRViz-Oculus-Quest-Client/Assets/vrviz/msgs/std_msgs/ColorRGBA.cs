@@ -10,5 +10,6 @@ namespace VRViz.Messages.std_msgs {
 		public std_msgs::Float32 g;
 		public std_msgs::Float32 b;
 		public std_msgs::Float32 a;
+		public static string ToRosString() { return "std_msgs.msg:ColorRGBA"; }
 	}
 }

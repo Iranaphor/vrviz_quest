@@ -1,7 +1,0 @@
-using UnityEngine;
-using Newtonsoft.Json;
-
-namespace vrviz.serialisation{
-
-}
-
