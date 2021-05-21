@@ -199,10 +199,13 @@ namespace VRViz.Serialiser {
 
     public class UInt8ArrayConverter : BaseConverter {
         public override object ReadJson(JsonReader reader, Type objectType, object existing, JsonSerializer serializer) {
+            // byte[] array = Convert.FromBase64String(reader.Value);
             byte[] array = Encoding.UTF8.GetBytes(Convert.ToString(reader.Value));
             std_msgs.UInt8[] obj = Enumerable.Range(1, array.Length).Select(i => new std_msgs.UInt8()).ToArray();
-            for (int i = 0; i < array.Length; ++i) {
-                obj[i].data = array[i];
+            for (int i = 0; i < array.Length; i+=3) {
+                obj[i].data = array[i+2];
+		        obj[i+1].data = array[i+1];
+		        obj[i+2].data = array[i];
             }
             return obj;	
         }

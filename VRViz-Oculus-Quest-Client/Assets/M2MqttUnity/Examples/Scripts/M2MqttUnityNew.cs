@@ -27,6 +27,8 @@ using System.Timers;
 using System.Collections;
 using System.Collections.Generic;
 using StopWatch = System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,7 +37,10 @@ using uPLibrary.Networking.M2Mqtt.Messages;
 using M2MqttUnity;
 
 using TopicOpener = VRViz.Communications.TopicOpener;
+using Modifiers = VRViz.Modifiers;
 
+using Messages = VRViz.Messages;
+using Odometry = VRViz.Messages.nav_msgs.Odometry;
 using std_msgs = VRViz.Messages.std_msgs;
 using nav_msgs = VRViz.Messages.nav_msgs;
 using sensor_msgs = VRViz.Messages.sensor_msgs;
@@ -69,7 +74,10 @@ namespace M2MqttUnity.Examples
         public GameObject rgb_panel;
         private TopicOpener vrviz_camera_rgb_image_raw = new TopicOpener(ros_topic:"/camera/rgb/image_raw", msg_type:sensor_msgs::Image.ToRosString());
         private Texture2D tex;
-        private Boolean tex_once = True;
+        private Boolean tex_once = true;
+
+        [Header("VRViz Image Raw")]
+        private TopicOpener vrviz_vrviz_camera_rgb_image_raw = new TopicOpener(ros_topic:"/vrviz/camera/rgb/image_raw", msg_type:sensor_msgs::Image.ToRosString());
 
         [Header("Goal")]
         public Transform goal_transform;
@@ -84,25 +92,67 @@ namespace M2MqttUnity.Examples
         protected override void SubscribeTopics() { foreach (TopicOpener o in topics_to_open) o.open_topic(client);}
         protected override void Start() {
             topics_to_open.Add(vrviz_odom);
-            topics_to_open.Add(vrviz_camera_rgb_image_raw);
-            topics_to_open.Add(vrviz_move_base_current_goal);
+            // topics_to_open.Add(vrviz_camera_rgb_image_raw);
+            // topics_to_open.Add(vrviz_vrviz_camera_rgb_image_raw);
+            // topics_to_open.Add(vrviz_move_base_current_goal);
             // topics_to_open.Add(vrviz_move_base_navfnros_plan);
             base.Start();
         }
 
+
+        public void ApplyMessage(string topic, string input_gameobject, string input_component, string input_modifier, byte[] input_msg, string input_msgtype) {
+
+            //Decode message
+            string msg = System.Text.Encoding.UTF8.GetString(input_msg);
+            Type msg_type = typeof(Odometry).Assembly.GetType(input_msgtype, true);
+            var json = JsonConvert.DeserializeObject(msg, msg_type);
+
+            // Identify GameObject
+            GameObject generic_gameobject = GameObject.Find(input_gameobject);
+            if (generic_gameobject == null) {
+                generic_gameobject = new GameObject(input_gameobject);
+            }
+
+            // Define Component Type /* https://stackoverflow.com/a/1044474 */
+            Type generic_type = typeof(GameObject).Assembly.GetType(input_component, true);
+
+            // Get Component
+            var generic_component = generic_gameobject.GetComponent(generic_type);
+            if (generic_component == null) {
+                generic_gameobject.AddComponent(generic_type);
+                generic_component = generic_gameobject.GetComponent(generic_type);
+            }
+
+            // Properties of method  /* https://docs.microsoft.com/en-us/dotnet/api/system.reflection.bindingflags?view=net-5.0 */
+            System.Reflection.BindingFlags binding_flags = BindingFlags.Static | BindingFlags.Public;
+
+            //Call method to modify Component
+            System.Reflection.MethodInfo generic_method = typeof(Modifiers).GetMethod(input_modifier, binding_flags);
+            generic_method.Invoke(null, new object[]{ generic_component, json} );
+        }
+        
 
 
         protected override void DecodeMessage(string topic, byte[] message) {
             string msg = System.Text.Encoding.UTF8.GetString(message);
             switch (topic) {
                 case "vrviz/odom":  // More accurate, less active: /move_base/feedback/feedback/pose
-                    nav_msgs::Odometry json1 = JsonConvert.DeserializeObject<nav_msgs::Odometry>(msg);
-                    SetPose(robot_transform, json1.pose.pose);
+
+                    ApplyMessage(topic, "RobotModel", "UnityEngine.Transform", "SetOdom", message, "VRViz.Messages.nav_msgs.Odometry");
+
+                    // client.Unsubscribe(new string[] { topic });
+
+
+
+                    // nav_msgs::Odometry json1 = JsonConvert.DeserializeObject<nav_msgs::Odometry>(msg);
+                    // SetPose(robot_transform, json1.pose.pose);
                     break;
 
                 case "vrviz/move_base/current_goal":
-                    geometry_msgs::PoseStamped json2 = JsonConvert.DeserializeObject<geometry_msgs::PoseStamped>(msg);
-                    SetPosition(goal_transform, json2.pose.position);
+                    ApplyMessage(topic, "GoalMarker", "UnityEngine.Transform", "SetPoseStamped", message, "VRViz.Messages.geometry_msgs.PoseStamped");
+
+                    // geometry_msgs::PoseStamped json2 = JsonConvert.DeserializeObject<geometry_msgs::PoseStamped>(msg);
+                    // SetPosition(goal_transform, json2.pose.position);
                     break;
 
                 case "vrviz/camera/rgb/image_raw":
@@ -111,6 +161,16 @@ namespace M2MqttUnity.Examples
                     if (tex_once) { tex_once = false;  this.tex = new Texture2D((int)json3.width.data, (int)json3.height.data, TextureFormat.RGBA32, false); }
                     SetImage(rgb_panel, json3.data, this.tex);
                     break;
+
+                // case "vrviz/vrviz/camera/rgb/image_raw":
+                    // sensor_msgs::Image json3b = JsonConvert.DeserializeObject<sensor_msgs::Image>(msg);
+
+                    // StreamWriter writer = new StreamWriter("text_unity.txt", true);
+                    // writer.Write(msg);
+                    // writer.Close();
+                    
+                    // Debug.LogError("File written");
+                    // break;
 
                 case "/move_base/NavfnROS/plan":
                     Debug.LogError(msg);
