@@ -35,33 +35,29 @@ using uPLibrary.Networking.M2Mqtt.Messages;
 /// </summary>
 namespace M2MqttUnity
 {
-    /// <summary>
-    /// Generic MonoBehavior wrapping a MQTT client, using a double buffer to postpone message processing in the main thread. 
-    /// </summary>
     public class M2MqttUnityClient : MonoBehaviour
     {
         [Header("MQTT broker configuration")]
-        [Tooltip("IP address or URL of the host running the broker")]
-        public string brokerAddress = "localhost";
-        [Tooltip("Port where the broker accepts connections")]
-        public int brokerPort = 1883;
-        [Tooltip("Use encrypted connection")]
-        public bool isEncrypted = false;
+        public string WANBrokerAddress = "86.169.236.130";
+        public int WANBrokerPort = 55555;
+        public string LANBrokerAddress = "192.168.1.93";
+        public int LANBrokerPort = 8883;
+        protected string brokerAddress;
+        protected int brokerPort;
+        
+        public string test1 = "WAN";
+        public string test2 = "LAN";
+        protected int total_tests = 0;
+
+
         [Header("Connection parameters")]
-        [Tooltip("Connection to the broker is delayed by the the given milliseconds")]
+        public bool isEncrypted = false;
         public int connectionDelay = 500;
-        [Tooltip("Connection timeout in milliseconds")]
-        public int timeoutOnConnection = MqttSettings.MQTT_CONNECT_TIMEOUT;
-        [Tooltip("Connect on startup")]
+        public int timeoutOnConnection = MqttSettings.MQTT_CONNECT_TIMEOUT; //timeout in milliseconds
         public bool autoConnect = false;
-        [Tooltip("UserName for the MQTT broker. Keep blank if no user name is required.")]
         public string mqttUserName = null;
-        [Tooltip("Password for the MQTT broker. Keep blank if no password is required.")]
         public string mqttPassword = null;
         
-        /// <summary>
-        /// Wrapped MQTT client
-        /// </summary>
         protected MqttClient client;
 
         private List<MqttMsgPublishEventArgs> messageQueue1 = new List<MqttMsgPublishEventArgs>();
@@ -71,107 +67,75 @@ namespace M2MqttUnity
         private bool mqttClientConnectionClosed = false;
         private bool mqttClientConnected = false;
 
-        /// <summary>
-        /// Event fired when a connection is successfully established
-        /// </summary>
         public event Action ConnectionSucceeded;
-        /// <summary>
-        /// Event fired when failing to connect
-        /// </summary>
         public event Action ConnectionFailed;
 
-        /// <summary>
-        /// Connect to the broker using current settings.
-        /// </summary>
-        public virtual void Connect()
-        {
-            if (client == null || !client.IsConnected)
-            {
+        public virtual void Connect() {
+            if (client == null || !client.IsConnected) {
+                
+                total_tests++;
+                string test = (total_tests <= 1) ? test1 : test2;
+                
+                switch (test) {
+                    case "WAN":
+                        Debug.Log("Connecting to WAN");
+                        brokerAddress = WANBrokerAddress;
+                        brokerPort = WANBrokerPort;
+                        break;
+
+                    case "LAN":
+                        Debug.Log("Connecting to LAN");
+                        brokerAddress = LANBrokerAddress;
+                        brokerPort = LANBrokerPort;
+                        break;
+
+                    default:
+                        break;
+                }
+
                 StartCoroutine(DoConnect());
             }
         }
 
-        /// <summary>
-        /// Disconnect from the broker, if connected.
-        /// </summary>
-        public virtual void Disconnect()
-        {
-            if (client != null)
-            {
+        public virtual void Disconnect() {
+            if (client != null) {
                 StartCoroutine(DoDisconnect());
             }
         }
 
-        /// <summary>
-        /// Override this method to take some actions before connection (e.g. display a message)
-        /// </summary>
-        protected virtual void OnConnecting()
-        {
+        protected virtual void OnConnecting() {
             Debug.LogFormat("Connecting to broker on {0}:{1}...\n", brokerAddress, brokerPort.ToString());
         }
 
-        /// <summary>
-        /// Override this method to take some actions if the connection succeeded.
-        /// </summary>
-        protected virtual void OnConnected()
-        {
+        protected virtual void OnConnected() {
             Debug.LogFormat("Connected to {0}:{1}...\n", brokerAddress, brokerPort.ToString());
             
             SubscribeTopics();
 
-            if (ConnectionSucceeded != null)
-            {
+            if (ConnectionSucceeded != null) {
                 ConnectionSucceeded();
             }
         }
 
-        /// <summary>
-        /// Override this method to take some actions if the connection failed.
-        /// </summary>
-        protected virtual void OnConnectionFailed(string errorMessage)
-        {
+        protected virtual void OnConnectionFailed(string errorMessage) {
             Debug.LogWarning("Connection failed.");
-            if (ConnectionFailed != null)
-            {
-                ConnectionFailed();
-            }
+
+            if (total_tests < 2) Connect();
+
+            if (ConnectionFailed != null) ConnectionFailed();
         }
 
-        /// <summary>
-        /// Override this method to subscribe to MQTT topics.
-        /// </summary>
-        protected virtual void SubscribeTopics()
-        {
-        }
+        protected virtual void SubscribeTopics() {}
+        protected virtual void UnsubscribeTopics() {}
 
-        /// <summary>
-        /// Override this method to unsubscribe to MQTT topics (they should be the same you subscribed to with SubscribeTopics() ).
-        /// </summary>
-        protected virtual void UnsubscribeTopics()
-        {
-        }
+        protected virtual void OnApplicationQuit() { CloseConnection(); }
 
-        /// <summary>
-        /// Disconnect before the application quits.
-        /// </summary>
-        protected virtual void OnApplicationQuit()
-        {
-            CloseConnection();
-        }
-
-        /// <summary>
-        /// Initialize MQTT message queue
-        /// Remember to call base.Awake() if you override this method.
-        /// </summary>
         protected virtual void Awake()
         {
             frontMessageQueue = messageQueue1;
             backMessageQueue = messageQueue2;
         }
 
-        /// <summary>
-        /// Connect on startup if autoConnect is set to true.
-        /// </summary>
         protected virtual void Start()
         {
             if (autoConnect)
@@ -188,21 +152,8 @@ namespace M2MqttUnity
             Debug.LogFormat("Message received on topic: {0}", topic);
         }
 
-        /// <summary>
-        /// Override this method to take some actions when disconnected.
-        /// </summary>
-        protected virtual void OnDisconnected()
-        {
-            Debug.Log("Disconnected.");
-        }
-
-        /// <summary>
-        /// Override this method to take some actions when the connection is closed.
-        /// </summary>
-        protected virtual void OnConnectionLost()
-        {
-            Debug.LogWarning("CONNECTION LOST!");
-        }
+        protected virtual void OnDisconnected() { Debug.Log("Disconnected."); }
+        protected virtual void OnConnectionLost() { Debug.LogWarning("CONNECTION LOST!"); }
 
         /// <summary>
         /// Processing of income messages and events is postponed here in the main thread.
@@ -245,13 +196,8 @@ namespace M2MqttUnity
             backMessageQueue = backMessageQueue == messageQueue1 ? messageQueue2 : messageQueue1;
         }
 
-        private void OnMqttMessageReceived(object sender, MqttMsgPublishEventArgs msg)
-        {
-            frontMessageQueue.Add(msg);
-        }
-
-        private void OnMqttConnectionClosed(object sender, EventArgs e)
-        {
+        private void OnMqttMessageReceived(object sender, MqttMsgPublishEventArgs msg) { frontMessageQueue.Add(msg); }
+        private void OnMqttConnectionClosed(object sender, EventArgs e) {
             // Set unexpected connection closed only if connected (avoid event handling in case of controlled disconnection)
             mqttClientConnectionClosed = mqttClientConnected;
             mqttClientConnected = false;
@@ -293,13 +239,19 @@ namespace M2MqttUnity
             {
                 yield break;
             }
-            OnConnecting();
+            OnConnecting();  //TODO: this was the last point before delay
 
             // leave some time to Unity to refresh the UI
             yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
 
+            // int sec = 1000;
             client.Settings.TimeoutOnConnection = timeoutOnConnection;
+            // client.Settings.TimeoutOnReceiving = 30*sec; // default timeout on receiving from client
+            // client.Settings.AttemptsOnRetry = 1; // max publish, subscribe and unsubscribe retry for QoS Level 1 or 2
+            // client.Settings.DelayOnRetry = 10*sec; // delay for retry publish, subscribe and unsubscribe for QoS Level 1 or 2
+            // client.Settings.TimeoutOnConnection = 30*sec; // broker need to receive the first message (CONNECT) within a reasonable amount of time after TCP/IP connection 
+
             string clientId = Guid.NewGuid().ToString();
             try
             {
@@ -308,7 +260,7 @@ namespace M2MqttUnity
             catch (Exception e)
             {
                 client = null;
-                Debug.LogErrorFormat("Failed to connect to {0}:{1}:\n{2}", brokerAddress, brokerPort, e.ToString());
+                Debug.LogErrorFormat("Failed to connect to {0}:{1}:\n{2}", brokerAddress, brokerPort, e.ToString()); //TODO: this was the first message after delay
                 OnConnectionFailed(e.Message);
                 yield break;
             }

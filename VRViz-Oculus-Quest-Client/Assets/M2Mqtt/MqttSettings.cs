@@ -32,7 +32,7 @@ namespace uPLibrary.Networking.M2Mqtt
         public const int MQTT_DELAY_RETRY = 10000;
         // broker need to receive the first message (CONNECT)
         // within a reasonable amount of time after TCP/IP connection 
-        public const int MQTT_CONNECT_TIMEOUT = 30000;
+        public const int MQTT_CONNECT_TIMEOUT = 500;
         // default inflight queue size
         public const int MQTT_MAX_INFLIGHT_QUEUE_SIZE = int.MaxValue;
 

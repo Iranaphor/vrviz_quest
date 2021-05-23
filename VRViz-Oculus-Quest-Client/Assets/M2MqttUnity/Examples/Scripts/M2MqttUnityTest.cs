@@ -44,7 +44,7 @@ namespace M2MqttUnity.Examples
 
         [Tooltip("Set this to true to perform a testing cycle automatically on startup")]
         public bool autoTest = false;
-        public bool once = true;
+        // public bool once = true;
         
         [Header("User Interface")]
         public InputField consoleInputField;
@@ -72,12 +72,17 @@ namespace M2MqttUnity.Examples
         public void AddUiMessage(string msg) {if (consoleInputField != null) {consoleInputField.text += msg + "\n";updateUI = true;}}
         protected override void OnConnecting() { base.OnConnecting(); SetUiMessage("Connecting to broker on " + brokerAddress + ":" + brokerPort.ToString() + "...\n");}
         protected override void OnConnected() {base.OnConnected();SetUiMessage("Connected to broker on " + brokerAddress + "\n");if (autoTest) {TestPublish();}}
-        protected override void OnConnectionFailed(string errorMessage) {AddUiMessage("CONNECTION FAILED! " + errorMessage);}
         protected override void OnDisconnected(){AddUiMessage("Disconnected.");}
         protected override void OnConnectionLost() { AddUiMessage("CONNECTION LOST!"); }
         private void OnDestroy() { Disconnect(); }
         private void OnValidate() {if (autoTest) autoConnect = true; }        
         
+        protected override void OnConnectionFailed(string errorMessage) {
+            AddUiMessage("CONNECTION FAILED! " + errorMessage);
+        
+            if (total_tests < 2) Connect();
+        }
+
 
 
         private void UpdateUI() {

@@ -14,20 +14,16 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::String encoding;
 		public std_msgs::UInt8 is_bigendian;
 		public std_msgs::UInt32 step;
-		[JsonConverter(typeof(UInt8ArrayConverter))]
+		[JsonConverter(typeof(UInt8B64Converter))]
 		public std_msgs::UInt8[] data;
 		public static string ToRosString() { return "sensor_msgs.msg:Image"; }
-	
 
-
-/**
-data_arr = new UInt8[string.length]
-for character in string{
-	data_arr[position of character] = Convert.ToByte(character)
-}
-return
-
-
-
-*/}
+	/**
+	data_arr = new UInt8[string.length]
+	for character in string{
+		data_arr[position of character] = Convert.ToByte(character)
+	}
+	return
+	*/
+    }
 }

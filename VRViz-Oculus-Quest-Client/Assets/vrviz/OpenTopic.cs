@@ -14,11 +14,11 @@ namespace VRViz.Communications
         public string _mqtt_reference;
         public string _ros_topic;
         public string _msg_type;
-        public int _frequency;
+        public double _frequency;
         public bool _latched;
         public int _qos;
         
-        public TopicOpener (string ros_topic, string msg_type, string mqtt_reference="", int frequency=1, bool latched=false, int qos=MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, string control_topic = "__dynamic_sever") {
+        public TopicOpener (string ros_topic, string msg_type, string mqtt_reference="", double frequency=1, bool latched=false, int qos=MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, string control_topic = "__dynamic_sever") {
             this._control_topic = control_topic;
             this._mqtt_reference = mqtt_reference == "" ?  "vrviz"+ros_topic : mqtt_reference; //if no mqtt_ref given, use ros_topic
             this._ros_topic = ros_topic;

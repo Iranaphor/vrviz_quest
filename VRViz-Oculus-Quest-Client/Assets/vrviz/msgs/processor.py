@@ -18,7 +18,6 @@ type_map = {
 	"int16": "short",#short
 	"int32": "int",#int
 	"int64": "long",#long
-	# "float16": "half", #float?
 	"float32": "float", #double?
 	"float64": "double", #decimal?
 	"string": "string",
@@ -39,7 +38,6 @@ capital_map = {
 	"int16":"Int16",
 	"int32":"Int32",
 	"int64":"Int64",
-	# "float16":"Float16",
 	"float32":"Float32",
 	"float64":"Float64",
 	"string": "String",
@@ -63,17 +61,18 @@ convert_map = {
 prefix_msgs = "VRViz.Messages"
 prefix_serialiser = "VRViz.Serialiser"
 
+binary_list = ["uint8", "char"]
+
 
 """
 Newtonsoft Seraliser Class definitions
 """
 
-"Assets/vrviz/msgs/actionlib_msgs/GoalID.cs(9,20): error CS0234: The type or namespace name 'Time' does not exist in the namespace 'VRViz.Messages.std_msgs'"
-
 def process_message(msg_type):
 	pckg, class_name = msg_type.split("/")
 	if msg_type == "std_msgs/Time":
-		msg = _create_time_msg()
+		msg = _create_time_msg("Time")
+	elif msg_type == "std_msgs/Duration":msg = _create_time_msg("Duration")
 	else:
 		message = create_msg_object(msg_type)
 		msg = message.__repr__()
@@ -82,26 +81,28 @@ def process_message(msg_type):
 		output.write(msg)
 
 
-def _create_time_msg():
+def _create_time_msg(type_name):
 	return """using System;
 using Newtonsoft.Json;
 using VRViz.Serialiser;
 
-namespace VRViz.Messages.std_msgs {
-	public class Time{
+namespace VRViz.Messages.std_msgs {{
+	public class {0}{{
 		public ulong secs;
 		public ulong nsecs;
-		public static string ToRosString() { return "std_msgs.msg:Time"; }
-	}
-}
-"""
+		public static string ToRosString() {{ return "std_msgs.msg:{0}}"; }}
+	}}
+}}
+""".format(type_name)
+
+
 
 
 def create_msg_object(msg_type):
 	"std_msgs/String"
 	if msg_type.split('/')[-1] in capital_map.values():
-		return primative_message(msg_type)
-	return basic_message(msg_type)
+		return Primative_message(msg_type)
+	return Basic_message(msg_type)
 
 
 class _message(object):
@@ -110,29 +111,41 @@ class _message(object):
 		self.using = [Using("System"), Using("Newtonsoft.Json"), Using(prefix_serialiser)]
 
 	def as_string(self):
-		return "\tpublic static string ToRosString() {{ return \"{0}.msg:{1}\"; }}\n".format(self.pckg, self.class_name)
+		return "\t\tpublic static string ToRosString() {{ return \"{0}.msg:{1}\"; }}\n".format(self.pckg, self.class_name)
 
 
-class primative_message(_message):
+class Primative_message(_message):
 	def __init__(self, msg_type):
 		""" @msg_type -> "std_msgs/String" || "std_msgs/Uint8" """
-		super(primative_message, self).__init__(msg_type)
+		super(Primative_message, self).__init__(msg_type)
+	
+	def from_array_function(self):
+		return """
+			public {types}[] FromArray({clazz}[] inArr){{
+				{types}[] ret = new {types}[inArr.length];
+				for(int i=0;i<inArr.length;i++)
+					ret[i]=inArr[i].data;
+				return ret;
+			}}\n
+		""".format(types=type_map[self.class_name.lower()], clazz=self.class_name)
 
 	def __repr__(self):
-		return "{0}\nnamespace {1}.{2} {{\n\t[JsonConverter(typeof({3}Converter))]\n\tpublic class {3}{{\n\t\tpublic {4} data;\n{5}\t}}\n}}"\
+		return "{0}\nnamespace {1}.{2} {{\n\t[JsonConverter(typeof({3}Converter))]\n\tpublic class {3}{{\n\t\tpublic {4} data;\n{5}\t{6}\t}}\n}}"\
 			.format("".join(str(u) for u in self.using),
 					prefix_msgs,
 					self.pckg, 
 					self.class_name, 
 					type_map[self.class_name.lower()],
-					self.as_string()
+					self.as_string(),
+					self.from_array_function()
 					)
-		
+	def __str__(self):
+		return self.__repr__()
 
-class basic_message(_message):
+class Basic_message(_message):
 	def __init__(self, msg_type):
 		""" @msg_type -> "nav_msgs/Odometry" || "geometry_msgs/Transform """
-		super(basic_message, self).__init__(msg_type)
+		super(Basic_message, self).__init__(msg_type)
 		contents = subprocess.check_output(["rosmsg", "show", msg_type]).split("\n")
 		spls = [item.split(" ") for item in contents if item and not item.startswith("  ") and "=" not in item] #TODO: test `echo $(rosmsg info geometry_msgs/PoseStamped | grep -v "  ")`
 		self.fields = [Field(*spl) for spl in spls ]
@@ -152,10 +165,12 @@ class basic_message(_message):
 					prefix_msgs,
 					self.as_string()
 					)
+	def __str__(self):
+		return self.__repr__()
 
 
 class Field(object):
-	def __repr__(self): return "\t\t{0} {1} {2};\n".format(self._scope, self._type, self._field_name)
+	def __repr__(self): return "{3}\t\t{0} {1} {2};\n".format(self._scope, self._type, self._field_name, self.binaryConverter)
 	def __str__(self): return self.__repr__()
 	def __init__(self, _type, _field_name, _scope="public"):
 		self._scope = _scope
@@ -175,16 +190,13 @@ class Field(object):
 
 		if _type in capital_map: 	#capitalise
 			_type = capital_map[_type]
-
+		
 		#Build message		
 		self._type = "{0}::{1}{2}".format(pck, _type, arr)
-		
+		self.binaryConverter = ""
+		if _type in binary_list:
+			self.binaryConverter = "\t\t[JsonConverter(typeof({0}B64Converter))]\n"
 			
-		# Alternate Approach
-		# clsnm = _type[ _type.find("/")+1 : _type.find("[") if _type.find("[")!=-1 else None ] 
-		# _type.replace(clsnm, capital_map[ clsnm ] )if clsnm in capital_map 
-		# self._type = _type.replace("/","::") if "/" in _type else "std_msgs::{0}".format(_type)
-
 
 class Using(object):
 	def __repr__(self): return "using {0};\n".format(self._pckg)
@@ -211,6 +223,7 @@ namespace VRViz.Serialiser {
 
 """
 
+
 def _create_type_serialiser(type_name, convert_name=None):
 	return """
 	 //Autogenerated NewtonSoft Json type converters for ROS std_msgs messages following the format of ;=>
@@ -227,6 +240,24 @@ def _create_type_serialiser(type_name, convert_name=None):
 	""".format(type_name, convert_name or type_name)
 
 
+def _create_binary_serialiser(type_name):
+	return """
+	//Autogenerated NewtonSoft Json type converters for Base64 strings
+	 public class {0}B64Converter : BaseConverter {{
+        public override object ReadJson(JsonReader reader, Type objectType, object existing, JsonSerializer serializer){{
+            byte[] array = Convert.FromBase64String(Convert.ToString(reader.Value));
+            std_msgs.{0}[] obj = Enumerable.Range(1, array.Length).Select(i => new std_msgs.{0}()).ToArray();
+            for (int i = 0; i < array.Length; i++) {{
+                obj[i].data = array[i];
+            }}
+			return obj;	
+        }}
+        public override bool CanConvert(Type objectType) {{
+            return objectType == typeof(std_msgs.{0});
+        }}
+    }}
+	""".format(type_name)
+	
 
 #cdAssets; cd vrviz/msgs/; python processor.py -c -t 4 -p std_msgs geometry_msgs actionlib_msgs nav_msgs sensor_msgs visualization_msgs
 if __name__ == "__main__":
@@ -256,9 +287,7 @@ if __name__ == "__main__":
 
 	# Map creation of C# objects to filtered messages
 	threads = Pool(args.threads)
-	threads.map(process_message, messages)
-	# process_message("sensor_msgs/Joy")
-	# process_message("visualization_msgs/Marker")	
+	threads.map(process_message, messages)	
 	
 	# Compile serialiser file
 	if args.convert:
@@ -271,6 +300,8 @@ if __name__ == "__main__":
 				conversion_text.append(_create_type_serialiser(capital_map[key], convert_map[key]))
 			else:
 				conversion_text.append(_create_type_serialiser(capital_map[key]))
+		for itm in binary_list:
+			conversion_text.append(_create_binary_serialiser(itm))
 		conversion_text.append("}")
 		with open("SerialisationAdapters.cs", "w") as output:
 			output.writelines(conversion_text)
