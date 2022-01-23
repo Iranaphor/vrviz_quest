@@ -45,8 +45,8 @@ namespace M2MqttUnity
         protected string brokerAddress;
         protected int brokerPort;
         
-        public string test1 = "WAN";
-        public string test2 = "LAN";
+        public string test1 = "LAN";
+        public string test2 = "WAN";
         protected int total_tests = 0;
 
 

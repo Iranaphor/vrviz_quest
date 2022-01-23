@@ -65,14 +65,15 @@ binary_list = ["uint8", "char"]
 
 
 """
-Newtonsoft Seraliser Class definitions
+Newtonsoft Serialiser Class definitions
 """
 
 def process_message(msg_type):
 	pckg, class_name = msg_type.split("/")
 	if msg_type == "std_msgs/Time":
 		msg = _create_time_msg("Time")
-	elif msg_type == "std_msgs/Duration":msg = _create_time_msg("Duration")
+	elif msg_type == "std_msgs/Duration":
+		msg = _create_time_msg("Duration")
 	else:
 		message = create_msg_object(msg_type)
 		msg = message.__repr__()
@@ -257,9 +258,9 @@ def _create_binary_serialiser(type_name):
         }}
     }}
 	""".format(type_name)
-	
 
-#cdAssets; cd vrviz/msgs/; python processor.py -c -t 4 -p std_msgs geometry_msgs actionlib_msgs nav_msgs sensor_msgs visualization_msgs
+
+#cdAssets; cd vrviz/msgs/; python processor.py -c -t 4 -p std_msgs geometry_msgs actionlib_msgs nav_msgs sensor_msgs visualization_msgs vrviz_ros
 if __name__ == "__main__":
 	#Manage args
 	parser = argparse.ArgumentParser(description="Convert ROS Messages to C# objects")
@@ -291,6 +292,7 @@ if __name__ == "__main__":
 	
 	# Compile serialiser file
 	if args.convert:
+		os.remove("./SerialisationAdapters.cs")
 		conversion_text = []
 		conversion_text.append(_create_file_serialiser())
 		for key in capital_map:

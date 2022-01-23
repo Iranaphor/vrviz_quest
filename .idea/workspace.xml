@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="1682d9ce-0003-40d6-86de-cacb136a7ddf" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.vrvizrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/M2MqttUnity/Examples/Scenes/M2MqttUnity_TestXR.unity" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/M2MqttUnity/Examples/Scenes/M2MqttUnity_TestXR.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/M2MqttUnity/Examples/Scripts/M2MqttUnityNew.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/M2MqttUnity/Examples/Scripts/M2MqttUnityNew.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/M2MqttUnity/Examples/Scripts/config_trial.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/M2MqttUnity/Scripts/M2MqttUnityClient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/M2MqttUnity/Scripts/M2MqttUnityClient.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/MSGPack.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/MessageReverseLookUp.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/OpenTopic.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/OpenTopic.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/modifiers/Transformers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/modifiers/Transformers.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/Necrodancer.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/processor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/std_msgs/String.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/std_msgs/String.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/ProjectSettings/PackageManagerSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/ProjectSettings/PackageManagerSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/ProjectSettings/ProjectVersion.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/genericisms.cs" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="244VHa6mssoApEusFbHpsHxkvZb" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
+    <option name="sortByType" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="codeWithMe.voiceChat.enabledByDefault" value="false" />
+    <property name="last_opened_file_path" value="$USER_HOME$/vrviz_dev_ws" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors" />
+  </component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1682d9ce-0003-40d6-86de-cacb136a7ddf" name="Changes" comment="" />
+      <created>1642888692518</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1642888692518</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.cs" />
+  </component>
+</project>
