@@ -5,14 +5,15 @@ using System.Net;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using VRViz.Containers;
+using VRViz.Connections;
 
 
 namespace VRViz.Setup {
     public class NMap : MonoBehaviour
     {
         public string url;
+        private ClientManager client;
 
-        // Start is called before the first frame update
         void Start()
         {
             //start unity-transport
@@ -39,12 +40,16 @@ namespace VRViz.Setup {
                 //display.container.Describe();
             }
 
+            //initiate mqtt
+            Debug.Log("ClientManager to be created.");
+            ClientManager client = new ClientManager("86.169.236.130", 55555, config, null, null);
+            Debug.Log("StartCoroutine to be started.");
+            StartCoroutine(client.Connect());
+
             //open topics
             foreach( VRViz.Containers.Display display in config.displays ) {
                 display.container.OpenTopic();
             }
-
-
 
         }
 
@@ -60,6 +65,8 @@ namespace VRViz.Setup {
             Debug.Log("Scanning for IP...");
             return "ip";
         }
+
+        protected virtual void OnApplicationQuit() { client.Disconnect(); }
 
     }
 }

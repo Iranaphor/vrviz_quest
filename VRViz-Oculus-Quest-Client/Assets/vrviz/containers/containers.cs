@@ -2,9 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using uPLibrary.Networking.M2Mqtt.Messages;
 
 namespace VRViz.Containers {
-    public class SceneConfig { public List<Display> displays { get; set; } }
+
+    public class SceneConfig {
+        public List<Display> displays { get; set; }
+        public void handle_incoming_message(object sender, MqttMsgPublishEventArgs msg) { Debug.Log(msg); }
+    }
+
     public class Display {
         public string visualization { get; set; }
         public string reference { get; set; }
@@ -33,6 +39,8 @@ namespace VRViz.Containers {
         public abstract string msg_type { get; set; }
         public abstract string reference_type { get; set; }
         public string reference { get; set; }
+
+        public string queue { get; set; }
 
         //Accept a reference definition from a child class
         public Base(string reference){ this.reference = reference; }

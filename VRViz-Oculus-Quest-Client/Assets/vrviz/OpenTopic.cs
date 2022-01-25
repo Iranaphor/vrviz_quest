@@ -8,18 +8,18 @@ using VRViz.Messages;
 
 namespace VRViz.Communications
 {
-    public class VRVizLogger{
-        private static ILogger logger = Debug.unityLogger;
-        public static String TAG_COMMS = "VRViz_Communications";
-        
-        public static ILogger GetLogger(){
-            return logger;
-        }
-
-        public static void LogInfo(string tag, string msg){
-            logger.Log(LogType.Log, tag, msg);
-        }
-    }
+//    public class VRVizLogger{
+//        private static ILogger logger = Debug.unityLogger;
+//        public static String TAG_COMMS = "VRViz_Communications";
+//
+//        public static ILogger GetLogger(){
+//            return logger;
+//        }
+//
+//        public static void LogInfo(string tag, string msg){
+//            logger.Log(LogType.Log, tag, msg);
+//        }
+//    }
 
 
     public class TopicOpener {
