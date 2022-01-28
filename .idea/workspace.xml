@@ -4,8 +4,7 @@
     <list default="true" id="1682d9ce-0003-40d6-86de-cacb136a7ddf" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/NMap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/NMap.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/OpenTopic.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/OpenTopic.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/containers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/containers.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/m2mqtt_managers/client.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/m2mqtt_managers/client.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +40,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="codeWithMe.voiceChat.enabledByDefault" value="false" />
     <property name="last_opened_file_path" value="$USER_HOME$/vrviz_dev_ws" />
-    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Color Scheme Font" />
   </component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">

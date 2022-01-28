@@ -12,6 +12,7 @@ namespace VRViz.Setup {
     public class NMap : MonoBehaviour
     {
         public string url;
+        public SceneConfig config;
         private ClientManager client;
 
         void Start()
@@ -32,27 +33,28 @@ namespace VRViz.Setup {
             Debug.Log(contents);
 
             //parse file
-            SceneConfig config = ParseConfig(contents);
+            this.config = ParseConfig(contents);
 
             //construct the rviz_containers for each display
-            foreach( VRViz.Containers.Display display in config.displays ) {
+            foreach( VRViz.Containers.Display display in this.config.displays ) {
                 display.construct_container();
                 //display.container.Describe();
             }
 
             //initiate mqtt
-            Debug.Log("ClientManager to be created.");
-            ClientManager client = new ClientManager("86.169.236.130", 55555, config, null, null);
-            Debug.Log("StartCoroutine to be started.");
-            StartCoroutine(client.Connect());
-
-            //open topics
-            foreach( VRViz.Containers.Display display in config.displays ) {
-                display.container.OpenTopic();
-            }
-
+            this.client = new ClientManager("127.0.0.1", 7781, this.config, null, null);
+            StartCoroutine(this.client.Connect());
         }
 
+        void Update() {
+            //Debug.Log("Client-Specs " + this.client.client.IsConnected + " " + this.client.on_connection_action);
+            if (this.client.client.IsConnected) {
+                if (this.client.on_connection_action) {
+                    foreach( VRViz.Containers.Display display in this.config.displays ) display.container.OpenTopic();
+                    client.on_connection_action = false;
+                }
+            }
+        }
 
         public static SceneConfig ParseConfig(string ymlContents) {
             //Parse the input `yaml` into an object `SceneConfig`, using the Underscored naming convention
