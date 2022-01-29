@@ -9,7 +9,7 @@ namespace VRViz.Containers {
         public override string msg_type { get; set; } = "sensor_msgs/LaserScan";
         public override string reference_type { get; set; } = "rostopic";
 
-        public Laserscan (string topic, Dictionary<string, object> details) : base(topic) {}
+        public Laserscan (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
         public override void ApplyMessage() { Debug.Log("Applying"); }
@@ -19,7 +19,7 @@ namespace VRViz.Containers {
         public override string msg_type { get; set; } = "sensor_msgs/PointCloud2";
         public override string reference_type { get; set; } = "rostopic";
 
-        public PointCloud2 (string topic, Dictionary<string, object> details) : base(topic) {}
+        public PointCloud2 (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
         public override void ApplyMessage() { Debug.Log("Applying"); }

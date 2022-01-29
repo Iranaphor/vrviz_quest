@@ -48,6 +48,7 @@ namespace VRViz.Communications
 
         public static void unsubscribe(MqttClient client, string mqtt_topic) {
             client.Unsubscribe(new string[] { mqtt_topic });
+
         }
     }
 

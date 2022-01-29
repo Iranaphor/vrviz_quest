@@ -292,7 +292,7 @@ if __name__ == "__main__":
 	
 	# Compile serialiser file
 	if args.convert:
-		os.remove("./SerialisationAdapters.cs")
+		os.remove("./std_data_convertors.cs")
 		conversion_text = []
 		conversion_text.append(_create_file_serialiser())
 		for key in capital_map:
@@ -305,7 +305,7 @@ if __name__ == "__main__":
 		for itm in binary_list:
 			conversion_text.append(_create_binary_serialiser(itm))
 		conversion_text.append("}")
-		with open("SerialisationAdapters.cs", "w") as output:
+		with open("std_data_convertors.cs", "w") as output:
 			output.writelines(conversion_text)
 
 

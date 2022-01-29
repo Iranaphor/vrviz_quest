@@ -50,7 +50,7 @@ namespace VRViz.Setup {
             //Debug.Log("Client-Specs " + this.client.client.IsConnected + " " + this.client.on_connection_action);
             if (this.client.client.IsConnected) {
                 if (this.client.on_connection_action) {
-                    foreach( VRViz.Containers.Display display in this.config.displays ) display.container.OpenTopic();
+                    foreach( VRViz.Containers.Display d in this.config.displays ) d.container.OpenTopic(this.client.client);
                     client.on_connection_action = false;
                 }
             }

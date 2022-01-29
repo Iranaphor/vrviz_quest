@@ -9,7 +9,7 @@ namespace VRViz.Containers {
         public override string msg_type { get; set; } = "geometry_msgs/Pose";
         public override string reference_type { get; set; } = "rostopic";
 
-        public Pose (string topic, Dictionary<string, object> details) : base(topic) {}
+        public Pose (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
         public override void ApplyMessage() { Debug.Log("Applying"); }
@@ -19,7 +19,7 @@ namespace VRViz.Containers {
         public override string msg_type { get; set; } = "geometry_msgs/PoseArray";
         public override string reference_type { get; set; } = "rostopic";
 
-        public PoseArray (string topic, Dictionary<string, object> details) : base(topic) {}
+        public PoseArray (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
         public override void ApplyMessage() { Debug.Log("Applying"); }
@@ -27,9 +27,9 @@ namespace VRViz.Containers {
 
     public class Odometry : VRViz.Containers.Base {
         public override string msg_type { get; set; } = "nav_msgs/Odometry";
-        public override string reference_type { get; set; } = "rosparam";
+        public override string reference_type { get; set; } = "rostopic";
 
-        public Odometry (string topic, Dictionary<string, object> details) : base(topic) {}
+        public Odometry (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
         public override void ApplyMessage() { Debug.Log("Applying"); }

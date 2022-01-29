@@ -11,7 +11,7 @@ namespace VRViz.Containers {
         public override string reference_type { get; set; } = "rostopic";
 
         //Apply the message contents to the scene
-        public Image (string topic, Dictionary<string, object> details) : base(topic) {}
+        public Image (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         public override void ApplyMessage() { Debug.Log("Applying"); }
     }
@@ -21,7 +21,7 @@ namespace VRViz.Containers {
         public override string msg_type { get; set; } = "nav_msgs/OccupancyGrid";
         public override string reference_type { get; set; } = "rostopic";
 
-        public Map (string topic, Dictionary<string, object> details) : base(topic) {}
+        public Map (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
         public override void ApplyMessage() { Debug.Log("Applying"); }

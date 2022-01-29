@@ -7,7 +7,7 @@ using UnityEngine;
 namespace VRViz.Containers {
 
     public static class Utils {
-        public static Dictionary<string, object> decodeDictionary(Dictionary<string, string> details){
+        public static Dictionary<string, object> decodeDisplayDictionary(Dictionary<string, string> details){
             Dictionary<string, object> ret = new Dictionary<string, object>();
             foreach ( KeyValuePair<string, string> entry in details ){
                 //Debug.Log("entry: " + entry.Key + " " + entry.Key);
@@ -42,51 +42,28 @@ namespace VRViz.Containers {
             return ret;
         }
 
-//        public Dictionary<string, object> parallelMagic(Dictionary<string, object> inputs){
-//            inputs.AsParallel().ForAll(pair => decode(pair.Key, pair.Value));
-//            return inputs;
-//        }
-
-
-//        public object decode(string key, string value){
-//            switch (key){
-//                case "alpha":               // Integer data types
-//                case "decay_time":
-//                case "size":
-//                    return Convert.ToInt32(value);
+//        public static Dictionary<string, string> decodeTopicDictionary(Dictionary<string, string> details, Base container){
+//            Dictionary<string, object> ret = new Dictionary<string, object>() {
+//                { 'control_topic', '__dynamic_server' },
+//                { 'mqtt_reference', '/vrviz' },
+//                { 'frequency', '1.0' },
+//                { 'latched', 'false' },
+//                { 'qos', '2' }
+//            };
 //
-//                case "angular_tolerance":   // Float data types
-//                case "position_tolerance":
-//                    return Convert.ToFloat32(value);
-//
-//                case "normalize_range":     // boolean data types
-//                    return Convert.ToBoolean(value);
-//
-//                case "colour":              // list data types
-//                case "flat_colour":
-//                    return value.split(",").ToList().ConvertAll<int>(x=>Convert.ToInt32(x));
-//
-//                default:                    // string data types
-//                    return value;
+//            foreach ( KeyValuePair<string, string> entry in details ) {
+//                switch (entry.Key) {
+//                    case "mqtt_reference":
+//                        ret[entry.Key] = ret[entry.Key] + reference;
+//                        break;
+//                    case "latched":
+//                        ret[entry.Key] = entry.Value ? "true" : "false";
+//                        break;
+//                ret[entry.Key]= entry.Value;
 //            }
+//
+//            return ret;
 //        }
     }
-
-//    public class DefaultValues {
-//        public string topic;
-//        public string param = "/robot_description";
-//        public float alpha = 1;
-//        public float angular_tolerance = 0.1;
-//        public List<int> colour = new List<int> { 255, 0, 0 };
-//        public string color_scheme = "raw";
-//        public int decay_time = 10;
-//        public string display = "2";
-//        public List<int> flat_colour = new List<int> { 255, 0, 0 };
-//        public bool normalize_range = true;
-//        public float position_tolerance = 0.1;
-//        public string shape = "arrow";
-//        public int size = 3;
-//        public string style = "points";
-//    }
 
 }
