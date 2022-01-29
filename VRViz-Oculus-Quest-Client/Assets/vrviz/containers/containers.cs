@@ -4,14 +4,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
+using Newtonsoft.Json;
 
 namespace VRViz.Containers {
 
     public class SceneConfig {
         public List<Display> displays { get; set; }
-        public void handle_incoming_message(object sender, MqttMsgPublishEventArgs msg) {
-            Debug.Log(msg);
-            Debug.Log(sender);
+        public Dictionary<string, Display> displays_dictionary = new Dictionary<string, Display>{};
+
+        public void convert_displays_to_dict () {
+            foreach (Display d in this.displays) { this.displays_dictionary[d.container.mqtt_reference] = d; }
+            this.displays = null;
+        }
+
+        public void handle_incoming_message(object sender, MqttMsgPublishEventArgs raw_msg) {
+            //Convert raw message to a string, and that message into a json object matching our type
+            string msg = System.Text.Encoding.UTF8.GetString(raw_msg.Message);
+            var json = JsonConvert.DeserializeObject(msg, this.displays_dictionary[raw_msg.Topic].container.msg_type_typ);
+            this.displays_dictionary[raw_msg.Topic].container.message_data = json;
         }
     }
 
@@ -47,14 +57,16 @@ namespace VRViz.Containers {
         //Define the msg type and ref_type as topic or param
         public abstract string msg_type { get; set; }
         public abstract string reference_type { get; set; }
+        public object message_data { get; set; }
 
         //Identify properties to be defined in base class
         public string reference { get; set; }
-        private string mqtt_reference { get; set; }
+        public string mqtt_reference { get; set; }
         private string control_topic { get; set; }
         private string frequency { get; set; }
         private string latched { get; set; }
         private string qos { get; set; }
+        public Type   msg_type_typ { get; set; }
         public string msg_type_msg { get; set; }
         public string msg_type_pkg { get; set; }
 
@@ -73,6 +85,7 @@ namespace VRViz.Containers {
             try { this.qos = T["qos"]; }                      catch { this.qos = "1"; }
 
             //Define faster refrences for message type labels
+            this.msg_type_typ = Type.GetType("VRViz.Messages."+this.msg_type.Replace("/", "."), true);
             this.msg_type_msg = this.msg_type.Replace("/", ".msg:");
             this.msg_type_pkg = this.msg_type;
         }
@@ -100,7 +113,7 @@ namespace VRViz.Containers {
                     }}
             }}",
             "ros2mqtt_subscribe", ros_topic, this.mqtt_reference, this.msg_type_msg, this.frequency, this.latched, this.qos);
-            Debug.Log(open_message);
+            //Debug.Log(open_message);
 
 
             //Construct and publish a message to the dynamic bridge server to open the topic of interest
@@ -113,6 +126,7 @@ namespace VRViz.Containers {
         }
 
         //Apply the message contents to the scene
+        public void ApplyIfMessage() {  if (this.message_data != null){ this.ApplyMessage(); this.message_data = null; } }
         public abstract void ApplyMessage();
 
     }

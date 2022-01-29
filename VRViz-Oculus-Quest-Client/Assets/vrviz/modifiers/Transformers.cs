@@ -10,8 +10,8 @@ using nav_msgs = VRViz.Messages.nav_msgs;
 using sensor_msgs = VRViz.Messages.sensor_msgs;
 using geometry_msgs = VRViz.Messages.geometry_msgs;
 
-namespace VRViz {
-	public class Modifiers {
+namespace VRViz.Modifiers {
+	public class ApplyMessage {
 
         public static void SetOdom(nav_msgs::Odometry json, Transform tf) { SetPose(json.pose.pose, tf); }
         public static void SetPoseStamped(geometry_msgs::PoseStamped json, Transform tf) { SetPose(json.pose, tf); }

@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using sensor_msgs = VRViz.Messages.sensor_msgs;
+
 namespace VRViz.Containers {
 
     public class Laserscan : VRViz.Containers.Base {
@@ -12,6 +14,7 @@ namespace VRViz.Containers {
         public Laserscan (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
+        public sensor_msgs::LaserScan message_data { get; set; }
         public override void ApplyMessage() { Debug.Log("Applying"); }
     }
 
@@ -22,6 +25,7 @@ namespace VRViz.Containers {
         public PointCloud2 (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
+        public sensor_msgs::PointCloud2 message_data { get; set; }
         public override void ApplyMessage() { Debug.Log("Applying"); }
     }
 

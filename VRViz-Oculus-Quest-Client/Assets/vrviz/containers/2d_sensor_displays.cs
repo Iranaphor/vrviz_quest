@@ -3,6 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using nav_msgs = VRViz.Messages.nav_msgs;
+using geometry_msgs = VRViz.Messages.geometry_msgs;
+using std_msgs = VRViz.Messages.std_msgs;
+
 namespace VRViz.Containers {
 
     public class Path : VRViz.Containers.Base {
@@ -12,6 +16,7 @@ namespace VRViz.Containers {
         public Path (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
+        public nav_msgs::Path message_data { get; set; }
         public override void ApplyMessage() { Debug.Log("Applying"); }
     }
 
@@ -22,6 +27,7 @@ namespace VRViz.Containers {
         public Polygon (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
+        public geometry_msgs::Polygon message_data { get; set; }
         public override void ApplyMessage() { Debug.Log("Applying"); }
     }
 
@@ -34,7 +40,7 @@ namespace VRViz.Containers {
         public RobotModel (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
+        public std_msgs::String message_data { get; set; }
         public override void ApplyMessage() { Debug.Log("Applying"); }
     }
-
 }

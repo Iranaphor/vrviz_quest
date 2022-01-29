@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using nav_msgs = VRViz.Messages.nav_msgs;
+using geometry_msgs = VRViz.Messages.geometry_msgs;
+
 namespace VRViz.Containers {
 
     public class Pose : VRViz.Containers.Base {
@@ -12,6 +15,7 @@ namespace VRViz.Containers {
         public Pose (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
+        public geometry_msgs::Pose message_data { get; set; }
         public override void ApplyMessage() { Debug.Log("Applying"); }
     }
 
@@ -22,6 +26,7 @@ namespace VRViz.Containers {
         public PoseArray (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
+        public geometry_msgs::PoseArray message_data { get; set; }
         public override void ApplyMessage() { Debug.Log("Applying"); }
     }
 
@@ -32,6 +37,7 @@ namespace VRViz.Containers {
         public Odometry (string R, Dictionary<string, object> display_details, Dictionary<string, string> T) : base(R, T) {}
 
         //Apply the message contents to the scene
+        public nav_msgs::Odometry message_data { get; set; }
         public override void ApplyMessage() { Debug.Log("Applying"); }
     }
 
