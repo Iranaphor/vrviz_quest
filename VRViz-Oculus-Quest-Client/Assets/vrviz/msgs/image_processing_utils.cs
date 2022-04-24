@@ -6,19 +6,8 @@ using UnityEngine;
 namespace VRViz.Utilities{
     public class ImageUtils{
         public static byte[] ColourSwap(Image input){
+            Debug.Log(input.height.data);
             byte[] ret = UInt8.FromArray(input.data);
-
-            /*
-NullReferenceException: Object reference not set to an instance of an object
-VRViz.Utilities.ImageUtils.ColourSwap (VRViz.Messages.sensor_msgs.Image input) (at Assets/vrviz/msgs/image_processing_utils.cs:9)
-VRViz.Modifiers.ApplyMessage.SetImage (VRViz.Messages.sensor_msgs.Image json, UnityEngine.UI.RawImage rgb_panel) (at Assets/vrviz/modifiers/Transformers.cs:46)
-VRViz.Containers.Image.ApplyMessage () (at Assets/vrviz/containers/2d_displays.cs:30)
-VRViz.Containers.Base.ApplyIfMessage () (at Assets/vrviz/containers/containers.cs:129)
-VRViz.Pipeline.Pipeline.Update () (at Assets/vrviz/Pipeline.cs:63)
-            */
-
-
-
             for(int i=0;i<ret.Length;i+=3){
                 byte temp = ret[i];
                 ret[i] = ret[i+2];

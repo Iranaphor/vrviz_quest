@@ -1,29 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Profiling;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 using Newtonsoft.Json;
 
 namespace VRViz.Containers {
-
-    public class SceneConfig {
-        public List<Display> displays { get; set; }
-        public Dictionary<string, Display> displays_dictionary = new Dictionary<string, Display>{};
-
-        public void convert_displays_to_dict () {
-            foreach (Display d in this.displays) { this.displays_dictionary[d.container.mqtt_reference] = d; }
-            this.displays = null;
-        }
-
-        public void handle_incoming_message(object sender, MqttMsgPublishEventArgs raw_msg) {
-            //Convert raw message to a string, and that message into a json object matching our type
-            string msg = System.Text.Encoding.UTF8.GetString(raw_msg.Message);
-            var json = JsonConvert.DeserializeObject(msg, this.displays_dictionary[raw_msg.Topic].container.msg_type_typ);
-            this.displays_dictionary[raw_msg.Topic].container.message_data = json;
-        }
-    }
 
 
     public class Display {
@@ -38,6 +23,7 @@ namespace VRViz.Containers {
         public Base container;
 
         public void construct_container() {
+            Profiler.BeginSample("VRViz.Containers::Display.construct_container");
             //Decode dictionaries into relevant types
             try { this.display_details_obj = Utils.decodeDisplayDictionary(this.display_details); }
             catch { this.display_details_obj = new Dictionary<string, object>(); }
@@ -49,11 +35,70 @@ namespace VRViz.Containers {
             //Attempt to construct the container
             try { this.container = (Base) Activator.CreateInstance(container_type, new object[]{this.reference, this.display_details_obj, this.topic_details}); }
             catch (Exception e) { Debug.Log(aqn + ": Not found " + e); }
+            Profiler.EndSample();
+        }
+    }
+
+
+    public class SceneConfig {
+        public List<Display> displays { get; set; }
+        public Dictionary<string, Display> displays_dictionary = new Dictionary<string, Display>{};
+
+        public void convert_displays_to_dict () {
+            Profiler.BeginSample("VRViz.Containers::SceneConfig.convert_displays_to_dict");
+            foreach (Display d in this.displays) { this.displays_dictionary[d.container.mqtt_reference] = d; }
+            this.displays = null;
+            Profiler.EndSample();
+        }
+
+        public void handle_incoming_message(object sender, MqttMsgPublishEventArgs raw_msg) {
+            Profiler.BeginSample("VRViz.Containers::SceneConfig.handle_incoming_messages");
+            //Convert raw message to a string, and that message into a json object matching our type
+            string msg = System.Text.Encoding.UTF8.GetString(raw_msg.Message);
+            Profiler.EndSample();
+            Profiler.BeginSample("HandleIncomingMessage-Deserialise");
+            var json = JsonConvert.DeserializeObject(msg, this.displays_dictionary[raw_msg.Topic].container.msg_type_typ);
+            Profiler.EndSample();
+            Debug.Log("Processing: " + json);
+            Profiler.BeginSample("HandleIncomingMessage-Assign");
+            this.displays_dictionary[raw_msg.Topic].container.message_data = json;
+            //this.displays_dictionary[raw_msg.Topic].container.ApplyMessage(); //this proves this is in coroutine
+            Profiler.EndSample();
         }
     }
 
 
     public abstract class Base {
+
+        //Apply the message contents to the scene
+        //public bool locked = false;
+        public void ApplyIfMessage() {
+            Profiler.BeginSample("VRViz.Containers::Base.ApplyIfMessage");
+            if (this.message_data != null) {
+                this.ApplyMessage();
+            }
+            this.message_data = null;
+            Profiler.EndSample();
+        }
+
+        //DefineFrame(this.frame, data.header.frame_id('camera_depth_optical_frame'))
+        //this creates the frame, we are pointing relative to...
+        public Transform DefineFrame(Transform link, string name) {
+            GameObject prefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/vrviz/prefabs/frame_.prefab", typeof(GameObject));
+            Debug.LogWarning(link);
+            Debug.LogWarning(name);
+            Debug.LogWarning(prefab);
+            Debug.LogWarning((Transform)link.Find(name));
+            if ((Transform)link.Find(name) == null) {
+                GameObject child_go = (GameObject)UnityEngine.Object.Instantiate(prefab, link);
+                child_go.name = name;
+            }
+
+            return link.Find(name);
+        }
+
+        public abstract void ApplyMessage();
+
         //Define the msg type and ref_type as topic or param
         public abstract string msg_type { get; set; }
         public abstract string reference_type { get; set; }
@@ -125,9 +170,6 @@ namespace VRViz.Containers {
             client.Subscribe(new string[] { this.mqtt_reference }, new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE });
         }
 
-        //Apply the message contents to the scene
-        public void ApplyIfMessage() {  if (this.message_data != null){ this.ApplyMessage(); this.message_data = null; } }
-        public abstract void ApplyMessage();
 
     }
 }

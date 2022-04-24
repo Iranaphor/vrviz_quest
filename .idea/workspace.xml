@@ -3,20 +3,22 @@
   <component name="ChangeListManager">
     <list default="true" id="1682d9ce-0003-40d6-86de-cacb136a7ddf" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/NMap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/Pipeline.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/OpenTopic.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/2d_displays.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/2d_displays.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/2d_sensor_displays.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/2d_sensor_displays.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/Scenes/M2MqttUnity_TestXR.unity" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/Pipeline.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/Pipeline.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/communications/client.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/communications/client.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/2d_displays.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/2d_sensor_displays.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/containers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/containers.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/position_displays.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/position_displays.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/sensor_displays.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/sensor_displays.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/position_displays.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/containers/sensor_displays.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/modifiers/Transformers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/modifiers/Transformers.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/image_processing_utils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/image_processing_utils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/sensor_msgs/PointCloud2.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/sensor_msgs/PointCloud2.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/UserSettings/EditorUserSettings.asset" afterDir="false" />
     </list>
     <list id="899b753a-5237-4298-a4f3-549f83ddb7c5" name="Changes by Jack" comment="">
-      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/NMap.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/Pipeline.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/modifiers/Transformers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/modifiers/Transformers.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/image_processing_utils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/image_processing_utils.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,26 +37,17 @@
     </file-type-list>
   </component>
   <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/Pipeline.cs">
+    <file path="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/modifiers/Transformers.cs">
       <ranges>
-        <range start1="0" end1="0" start2="0" end2="1" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="2" end1="2" start2="3" end2="6" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="3" end1="4" start2="7" end2="9" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="6" end1="8" start2="11" end2="11" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="9" end1="12" start2="12" end2="14" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="13" end1="14" start2="15" end2="16" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="16" end1="16" start2="18" end2="23" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="19" end1="21" start2="26" end2="27" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="22" end1="29" start2="28" end2="29" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="31" end1="32" start2="31" end2="32" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="40" end1="41" start2="40" end2="40" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="42" end1="42" start2="41" end2="42" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="44" end1="45" start2="44" end2="45" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="49" end1="50" start2="49" end2="49" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="52" end1="53" start2="51" end2="54" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="55" end1="55" start2="56" end2="61" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
-        <range start1="65" end1="69" start2="71" end2="71" changelist="899b753a-5237-4298-a4f3-549f83ddb7c5" />
-        <range start1="72" end1="74" start2="74" end2="97" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
+        <range start1="13" end1="15" start2="13" end2="15" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
+        <range start1="45" end1="50" start2="45" end2="77" changelist="899b753a-5237-4298-a4f3-549f83ddb7c5" />
+        <range start1="56" end1="57" start2="83" end2="84" changelist="899b753a-5237-4298-a4f3-549f83ddb7c5" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/VRViz-Oculus-Quest-Client/Assets/vrviz/msgs/image_processing_utils.cs">
+      <ranges>
+        <range start1="8" end1="8" start2="8" end2="9" changelist="899b753a-5237-4298-a4f3-549f83ddb7c5" />
+        <range start1="9" end1="21" start2="10" end2="10" changelist="1682d9ce-0003-40d6-86de-cacb136a7ddf" />
       </ranges>
     </file>
   </component>
@@ -75,7 +68,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="codeWithMe.voiceChat.enabledByDefault" value="false" />
-    <property name="last_opened_file_path" value="$USER_HOME$/vrviz_dev_ws" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Iranaphor_RAS" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Color Scheme Font" />
   </component>
   <component name="RunManager">

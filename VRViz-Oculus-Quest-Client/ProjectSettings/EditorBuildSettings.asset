@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/M2MqttUnity/Examples/Scenes/M2MqttUnity_TestXR.unity
-    guid: a5aedeaf212ee024d8084c156b955948
+    path: Assets/Scenes/TestSCene.unity
+    guid: 7c494788da647ddd4ac4de515f131ae9
   m_configObjects: {}

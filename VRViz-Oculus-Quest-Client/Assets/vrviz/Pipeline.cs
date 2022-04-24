@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Profiling;
 using VRViz.Containers;
 using VRViz.Connections;
 using YamlDotNet.Serialization;
@@ -13,7 +14,7 @@ using YamlDotNet.Serialization.NamingConventions;
 namespace VRViz.Pipeline {
     public class Pipeline : MonoBehaviour
     {
-        private string url = "https://raw.githubusercontent.com/Iranaphor/VRViz_ROS/main/config/vrviz_4_display_scene_config.yaml?token=GHSAT0AAAAAABL7KLGDZPS2AWINNF2YFAIUYP6W7GA";
+        //private string url = "https://raw.githubusercontent.com/Iranaphor/VRViz_ROS/main/config/vrviz_4_display_scene_config.yaml?token=GHSAT0AAAAAABL7KLGDZPS2AWINNF2YFAIUYP6W7GA";
         public SceneConfig config;
         private ClientManager client;
         private int LAN_PORT = 8608;
@@ -24,6 +25,7 @@ namespace VRViz.Pipeline {
 
         void Start()
         {
+            Profiler.BeginSample("VRViz.Pipeline::Pipeline.Start");
             Discover();
 
             string url1 = "http://" + mqtt_ip + ":" + web_server_port.ToString() + "/vrviz_4_display_scene_config.yaml";
@@ -44,10 +46,15 @@ namespace VRViz.Pipeline {
             //initiate mqtt
             this.client = new ClientManager(this.mqtt_ip, this.mqtt_port, this.config, null, null);
             StartCoroutine(this.client.Connect());
+
+            Profiler.EndSample();
         }
 
         void Update() {
+            Profiler.BeginSample("VRViz.Pipeline::Pipeline.Update");
             if (this.client.client.IsConnected) {
+
+                //once connected, open a topic for each container
                 if (this.client.on_connection_action) {
                     foreach(KeyValuePair<string, VRViz.Containers.Display> item in this.config.displays_dictionary){
                         item.Value.container.OpenTopic(this.client.client);
@@ -55,17 +62,21 @@ namespace VRViz.Pipeline {
                     client.on_connection_action = false;
                 }
 
+                //for each container, apply message if one exists
                 foreach(KeyValuePair<string, VRViz.Containers.Display> item in this.config.displays_dictionary){
                     item.Value.container.ApplyIfMessage();
                 }
 
             }
+            Profiler.EndSample();
         }
 
         public static SceneConfig ParseConfig(string ymlContents) {
+            Profiler.BeginSample("VRViz.Pipeline::Pipeline.ParseConfig");
             //Parse the input `yaml` into an object `SceneConfig`, using the Underscored naming convention
             UnderscoredNamingConvention conv = new UnderscoredNamingConvention();
             var deserializer = new DeserializerBuilder().WithNamingConvention(conv).Build();
+            Profiler.EndSample();
             return deserializer.Deserialize<SceneConfig>(ymlContents);
         }
 
@@ -73,6 +84,8 @@ namespace VRViz.Pipeline {
         protected virtual void OnApplicationQuit() { client.Disconnect(); }
 
         public void Discover(){
+            Profiler.BeginSample("VRViz.Pipeline::Pipeline.Discover");
+
 			byte[] data = null;
             UdpClient udp_client = new UdpClient(LAN_PORT);
             IPEndPoint ep = new IPEndPoint(IPAddress.Any, LAN_PORT);
@@ -86,9 +99,8 @@ namespace VRViz.Pipeline {
             this.web_server_port = int.Parse(values[3]);
             this.mqtt_ip = values[1];
             this.mqtt_port = int.Parse(values[2]);
-//            Debug.Log(this.mqtt_ip);
-//            Debug.Log(this.mqtt_port);
-//            Debug.Log(this.web_server_port);
+
+            Profiler.EndSample();
 		}
 
 
