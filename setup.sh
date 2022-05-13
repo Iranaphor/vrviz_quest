@@ -17,15 +17,15 @@ chmod +x UnityHub.AppImage
 # 4. Follow the on screen instructions
 #   - accept the user agreement
 #   - when prompted for a license, click ignore
-#   - move back from preferences using the button in the top right corner
+#   - move back from preferences using the button in the top left corner
 
 # 5. Lisence management
-#   - to add a license click on the settings wheel and click login
+#   - to add a license click on the user icon and click `Sign In`
 #   - enter your personal account details
 #   - back on the settings menu go to license management
-#   - click on activate new lisence
-#   - select Unity Personal, then I dont use Unity in a professional capacity
-#   - then click Done
+#   - click on `Activate New Lisence`
+#   - select `Unity Personal`, then `I dont use Unity in a professional capacity`
+#   - then click `Done`
 
 # 6. Complete installation
 #   - on the main page, select installs
