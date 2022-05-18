@@ -35,24 +35,24 @@ namespace VRViz.Containers {
             Profiler.EndSample();
         }
 
-//        sensor_msgs::Image data = null;
-//        public override void ApplyMessage() { //frame_stagger
-//            Profiler.BeginSample("VRViz.Containers::Image.ApplyMessage");
-//            if (this.data == null)
-//                 { this.ApplyMessage1(); this.message_data = null; }
-//            else { this.ApplyMessage2(); this.data = null; }
-//            Profiler.EndSample();
-//        }
-//        public void ApplyMessage1() {
-//            Profiler.BeginSample("VRViz.Containers::Image.ApplyMessage1");
-//            this.data = (sensor_msgs.Image)this.message_data;
-//            Profiler.EndSample();
-//        }
-//        public void ApplyMessage2() {
-//            Profiler.BeginSample("VRViz.Containers::Image.ApplyMessage2");
-//            VRViz.Modifiers.MessageApplications.SetImage(this.data, this.raw_image);
-//            Profiler.EndSample();
-//        }
+    //    sensor_msgs::Image data = null;
+    //    public override void ApplyMessage() { //frame_stagger
+    //        Profiler.BeginSample("VRViz.Containers::Image.ApplyMessage");
+    //        if (this.data == null)
+    //             { this.ApplyMessage1(); this.message_data = null; }
+    //        else { this.ApplyMessage2(); this.data = null; }
+    //        Profiler.EndSample();
+    //    }
+    //    public void ApplyMessage1() {
+    //        Profiler.BeginSample("VRViz.Containers::Image.ApplyMessage1");
+    //        this.data = (sensor_msgs.Image)this.message_data;
+    //        Profiler.EndSample();
+    //    }
+    //    public void ApplyMessage2() {
+    //        Profiler.BeginSample("VRViz.Containers::Image.ApplyMessage2");
+    //        VRViz.Modifiers.MessageApplications.SetImage(this.data, this.raw_image);
+    //        Profiler.EndSample();
+    //    }
     }
 
     public class Odometry : VRViz.Containers.Base {

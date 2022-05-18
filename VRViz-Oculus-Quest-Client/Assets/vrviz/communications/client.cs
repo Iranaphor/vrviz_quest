@@ -12,7 +12,8 @@ namespace VRViz.Connections {
     public class ClientManager {
         string ip, mqttUserName, mqttPassword, clientId = Guid.NewGuid().ToString();
         int port;
-        public bool on_connection_action = false;
+        public bool is_connected = false;
+        public bool is_initial_connection = false;
         SceneConfig config;
         public MqttClient client;
 
@@ -28,11 +29,18 @@ namespace VRViz.Connections {
 
         public IEnumerator Connect() { //yield return new WaitForSecondsRealtime(0.5f);
             Profiler.BeginSample("VRViz.Connections::ClientManager.Connect");
+
+            //Costruct client object
             this.client = new MqttClient(this.ip, this.port, false, null, null, MqttSslProtocols.None);
+
+            //Set the msg recieved callback
             this.client.MqttMsgPublishReceived += this.config.handle_incoming_message;
+
+            //Attempt to connect to the client
             try {
                 this.client.Connect(this.clientId, this.mqttUserName, this.mqttPassword);
-                this.on_connection_action = true;
+                this.is_connected = true;
+                this.is_initial_connection = true;
                 Debug.Log("Connection result: success");
             } catch { Debug.Log("Connection result: failure."); }
             Profiler.EndSample();
