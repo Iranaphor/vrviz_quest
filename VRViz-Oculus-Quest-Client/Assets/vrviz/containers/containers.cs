@@ -59,7 +59,7 @@ namespace VRViz.Containers {
             Profiler.BeginSample("HandleIncomingMessage-Deserialise");
             var json = JsonConvert.DeserializeObject(msg, this.displays_dictionary[raw_msg.Topic].container.msg_type_typ);
             Profiler.EndSample();
-            Debug.Log("Processing: " + json);
+            //Debug.Log("Processing: " + json);
             Profiler.BeginSample("HandleIncomingMessage-Assign");
             this.displays_dictionary[raw_msg.Topic].container.message_data = json;
             //this.displays_dictionary[raw_msg.Topic].container.ApplyMessage(); //this proves this is in coroutine
@@ -85,10 +85,7 @@ namespace VRViz.Containers {
         //this creates the frame, we are pointing relative to...
         public Transform DefineFrame(Transform link, string name) {
             GameObject prefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/vrviz/prefabs/frame_.prefab", typeof(GameObject));
-            Debug.LogWarning(link);
-            Debug.LogWarning(name);
-            Debug.LogWarning(prefab);
-            Debug.LogWarning((Transform)link.Find(name));
+            Debug.Log("nom("+name+") | lnk("+link+") | fab("+prefab+") | tf("+(Transform)link.Find(name)+")");
             if ((Transform)link.Find(name) == null) {
                 GameObject child_go = (GameObject)UnityEngine.Object.Instantiate(prefab, link);
                 child_go.name = name;

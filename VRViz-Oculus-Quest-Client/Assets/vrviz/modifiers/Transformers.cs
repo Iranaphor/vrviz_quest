@@ -25,16 +25,18 @@ namespace VRViz.Modifiers {
 
         public static void SetPointCloud2(sensor_msgs::PointCloud2 json, Transform tf, string child_prefix) {
             //TODO: we must identify x,y,z from json.fields
-            GameObject prefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/vrviz/prefabs/panel_.prefab", typeof(GameObject));
+            GameObject prefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/vrviz/prefabs/cube_.prefab", typeof(GameObject));
             Transform panel = null;
             float x = 0;
             float y = 0;
             float z = 0;
-            for (int i = 0; i < json.data.Length; i += 12800) {
+            return; 
+            
+            for (int i = 0; i < json.data.Length; i += 1024) {
                 x = (float)json.data[i].data;
-                y = (float)json.data[i+1].data;
-                z = (float)json.data[i+2].data;
-                panel = FindChild(tf, child_prefix+i/4, prefab);
+                y = (float)json.data[i+4].data;
+                z = (float)json.data[i+8].data;
+                panel = FindChild(tf, child_prefix+i/32, prefab);
                 panel.localPosition = new Vector3(x,y,z);
                 return; 
             }
@@ -64,6 +66,8 @@ namespace VRViz.Modifiers {
 
         public static void SetImage(sensor_msgs::Image json, RawImage rgb_panel) {
             Debug.Log("Set Image Called");
+
+            return; 
 //            byte[] col = ImageUtils.ColourSwap(json);
 //            Texture2D tex = new Texture2D((int)json.width.data, (int)json.height.data, TextureFormat.RGB24, false);
 //            tex.LoadRawTextureData(col);

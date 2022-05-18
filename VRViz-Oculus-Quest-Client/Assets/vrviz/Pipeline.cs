@@ -14,7 +14,7 @@ using YamlDotNet.Serialization.NamingConventions;
 namespace VRViz.Pipeline {
     public class Pipeline : MonoBehaviour
     {
-        //private string url = "https://raw.githubusercontent.com/Iranaphor/VRViz_ROS/main/config/vrviz_4_display_scene_config.yaml?token=GHSAT0AAAAAABL7KLGDZPS2AWINNF2YFAIUYP6W7GA";
+        private string url;// = "https://raw.githubusercontent.com/Iranaphor/vrviz_ros/main/config/vrviz_4_display_scene_config.yaml?token=GHSAT0AAAAAABURIMUPJHMQGUYPZQXCIU22YT6XWMA";
         public SceneConfig config;
         private ClientManager client;
         private int LAN_PORT = 8608;
@@ -26,40 +26,24 @@ namespace VRViz.Pipeline {
         void Start()
         {
             Profiler.BeginSample("VRViz.Pipeline::Pipeline.Start");
-            Discover();
-
-            string url1 = "http://" + mqtt_ip + ":" + web_server_port.ToString() + "/vrviz_4_display_scene_config.yaml";
-            string contents;
-            using (var wc = new System.Net.WebClient())
-                contents = wc.DownloadString(url1);
-            Debug.Log(contents);
-
-            //parse file
-            this.config = ParseConfig(contents);
-
-            //construct the rviz_containers for each display
-            foreach( VRViz.Containers.Display display in this.config.displays ) {
-                display.construct_container();
-            }
-            this.config.convert_displays_to_dict();
-
-            //initiate mqtt
-            this.client = new ClientManager(this.mqtt_ip, this.mqtt_port, this.config, null, null);
-            StartCoroutine(this.client.Connect());
-
+            StartCoroutine(Init());
             Profiler.EndSample();
         }
 
         void Update() {
             Profiler.BeginSample("VRViz.Pipeline::Pipeline.Update");
-            if (this.client.client.IsConnected) {
 
-                //once connected, open a topic for each container
-                if (this.client.on_connection_action) {
+            //So long as the connection is active
+            if (this.client != null && this.client.is_connected) {
+
+                //If this is the initial connection
+                if (this.client.is_initial_connection) {
+                    
+                    //Open a topic for each display listed in the config
                     foreach(KeyValuePair<string, VRViz.Containers.Display> item in this.config.displays_dictionary){
                         item.Value.container.OpenTopic(this.client.client);
                     }
-                    client.on_connection_action = false;
+                    this.client.is_initial_connection = false;
                 }
 
                 //for each container, apply message if one exists
@@ -68,6 +52,7 @@ namespace VRViz.Pipeline {
                 }
 
             }
+
             Profiler.EndSample();
         }
 
@@ -83,7 +68,38 @@ namespace VRViz.Pipeline {
 
         protected virtual void OnApplicationQuit() { client.Disconnect(); }
 
+
+
+
+        public IEnumerator Init() {
+
+            //Discover();
+            string url = "http://" + mqtt_ip + ":" + web_server_port.ToString() + "/vrviz_4_display_scene_config.yaml";
+
+            string contents;
+            using (var wc = new System.Net.WebClient())
+                contents = wc.DownloadString(url);
+            Debug.Log(contents);
+
+            //parse file
+            this.config = ParseConfig(contents);
+
+            //construct the rviz_containers for each display
+            foreach( VRViz.Containers.Display display in this.config.displays ) {
+                display.construct_container();
+            }
+            this.config.convert_displays_to_dict();
+
+            //initiate mqtt
+            this.client = new ClientManager(this.mqtt_ip, this.mqtt_port, this.config, null, null);
+            StartCoroutine(this.client.Connect());
+
+            yield return null;
+        }
+
+
         public void Discover(){
+            Debug.Log("Discover start");
             Profiler.BeginSample("VRViz.Pipeline::Pipeline.Discover");
 
 			byte[] data = null;
@@ -95,14 +111,13 @@ namespace VRViz.Pipeline {
             } catch( Exception e ) { Debug.Log(e); }
             finally { udp_client.Close(); }
 
-            string[] values = System.Text.Encoding.UTF8.GetString(data).Split('-');
-            this.web_server_port = int.Parse(values[3]);
+            string[] values = System.Text.Encoding.UTF8.GetString(data).Split('-'); //vrviz_ros-0.0.12.247-7781-8080
             this.mqtt_ip = values[1];
             this.mqtt_port = int.Parse(values[2]);
+            this.web_server_port = int.Parse(values[3]);
 
             Profiler.EndSample();
 		}
-
 
     }
 }
