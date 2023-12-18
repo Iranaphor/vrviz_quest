@@ -49,7 +49,7 @@ MonoBehaviour:
   has_new_config: 0
   has_new_msg: 0
   initial_config: 0
-  PointBall: {fileID: 0}
+  PointBall: {fileID: 2203751253535999989}
 --- !u!1001 &5526401615205873509
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -59,12 +59,24 @@ PrefabInstance:
     m_TransformParent: {fileID: 5602543794299615547}
     m_Modifications:
     - target: {fileID: 3230430299522963287, guid: 1cc0a3791b971801e9122dd4b56a5774, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3230430299522963287, guid: 1cc0a3791b971801e9122dd4b56a5774, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3230430299522963287, guid: 1cc0a3791b971801e9122dd4b56a5774, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3230430299522963287, guid: 1cc0a3791b971801e9122dd4b56a5774, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3230430299522963287, guid: 1cc0a3791b971801e9122dd4b56a5774, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 3230430299522963287, guid: 1cc0a3791b971801e9122dd4b56a5774, type: 3}
       propertyPath: m_LocalPosition.z
@@ -107,6 +119,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1cc0a3791b971801e9122dd4b56a5774, type: 3}
+--- !u!1 &2203751253535999989 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5919125104589566096, guid: 1cc0a3791b971801e9122dd4b56a5774, type: 3}
+  m_PrefabInstance: {fileID: 5526401615205873509}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6946085272027406386 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3230430299522963287, guid: 1cc0a3791b971801e9122dd4b56a5774, type: 3}

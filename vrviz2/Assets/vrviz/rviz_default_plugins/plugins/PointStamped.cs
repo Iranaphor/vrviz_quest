@@ -13,7 +13,7 @@ namespace VRViz.plugins.rviz_default_plugins.plugins {
 		[JsonProperty("History Length")]
 		public uint HistoryLength;
 
-		public uint Radius;
+		public float Radius;
     }
 }
 

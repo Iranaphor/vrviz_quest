@@ -92,7 +92,7 @@ public class rviz_default_plugins_Pose : rviz_prefabs.RvizPrefabBase
         Debug.Log("Re-Deserialized JSON object: " + jsonString);
 
         if (this.message_data == null){
-            Debug.LogError("this.message_data.position is null");
+            Debug.LogError("this.message_data is null");
             return;
         }
 
@@ -102,13 +102,17 @@ public class rviz_default_plugins_Pose : rviz_prefabs.RvizPrefabBase
             (float)this.message_data.pose.position.z.data, 
             (float)this.message_data.pose.position.y.data);
 
-        this.ArrowAxes.transform.localRotation = new Quaternion(
+        Quaternion inputQuaternion = new Quaternion(
             (float)this.message_data.pose.orientation.x.data, 
             (float)this.message_data.pose.orientation.y.data, 
             (float)this.message_data.pose.orientation.z.data, 
             (float)this.message_data.pose.orientation.w.data);
-
+        Vector3 euler = inputQuaternion.eulerAngles;
+        euler.x = 0;
+        euler.y = -euler.z;
+        euler.z = 0;
+        this.ArrowAxes.transform.localRotation = Quaternion.Euler(euler);
+        
         this.message_data = null;
-
     }
 }

@@ -23,10 +23,10 @@ public class arrowaxes_handler : MonoBehaviour
 
     public void SetConfig(){
 
-        if (this.Shape == "axes"){
+        if (this.Shape == "Axes"){
             this.axes.SetActive(true);
             this.arrow.SetActive(false);
-        } else if (this.Shape == "arrow"){
+        } else if (this.Shape == "Arrow"){
             this.axes.SetActive(false);
             this.arrow.SetActive(true);
         }

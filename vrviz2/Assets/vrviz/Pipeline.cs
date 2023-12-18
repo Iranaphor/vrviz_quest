@@ -26,14 +26,16 @@ namespace VRViz.Pipeline {
         private ClientManager client;
 
         private bool skip_input = true;
-        private string default_mqtt_ip = "127.0.0.1";
-        // private string default_mqtt_ip = "192.168.137.95";
-        private int default_mqtt_port = 8883;
+        // private string default_mqtt_ip = "127.0.0.1";
+        public string default_mqtt_ip = "192.168.137.95";
+        public int default_mqtt_port = 8883;
 
         private Dictionary<string, GameObject> displays = new Dictionary<string, GameObject>();
         private List<rviz_general.Display> queue_prefab_generation;
         private List<MqttMsgPublishEventArgs> queue_prefab_msg = new List<MqttMsgPublishEventArgs>();
+
         public Text text_log;
+        public GameObject rviz_table;
 
         void Start()
         {
@@ -99,6 +101,7 @@ namespace VRViz.Pipeline {
 
                         if (prefab != null) {
                             GameObject go = Instantiate(prefab);
+                            go.transform.SetParent(rviz_table.transform, false);
                             
                             // save prefab for later use
                             this.displays["vrviz"+display.Topic.Value] = go;
