@@ -76,6 +76,7 @@ namespace VRViz.Pipeline {
                     this.client.on_connection_action = false;
 
                     this.text_log.text = "connection completed wooo";
+                    this.client.client.Publish("vrviz/LOG", "connection completed wooo")
                     //Debug.Log("connection completed woo");
 
                     // subscribe to topic
