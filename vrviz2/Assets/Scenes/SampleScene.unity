@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028328, g: 0.22571328, b: 0.3069218, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2035,6 +2035,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1489649458}
   m_CullTransparentMesh: 1
+--- !u!1 &1600812346
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1600812348}
+  - component: {fileID: 1600812347}
+  m_Layer: 0
+  m_Name: GPS (not sure how to make it work)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1600812347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1600812346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaab0543a8dcd7eb598afaf014683c33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  portName: /dev/bus/usb/001/002
+  baudRate: 9600
+  text_log: {fileID: 1063543379}
+--- !u!4 &1600812348
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1600812346}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1739221552
 GameObject:
   m_ObjectHideFlags: 0
@@ -2115,8 +2162,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c20840acecef43ffea9876aeef8063e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  default_mqtt_ip: 192.168.137.68
-  default_mqtt_port: 8883
+  default_mqtt_ip: mqtt.lcas.groupon
+  default_mqtt_port: 1883
   text_log: {fileID: 1063543379}
   rviz_table: {fileID: 1784516871}
 --- !u!1 &1784516871
@@ -2817,3 +2864,4 @@ SceneRoots:
   - {fileID: 1784516872}
   - {fileID: 1739221553}
   - {fileID: 749046743}
+  - {fileID: 1600812348}
