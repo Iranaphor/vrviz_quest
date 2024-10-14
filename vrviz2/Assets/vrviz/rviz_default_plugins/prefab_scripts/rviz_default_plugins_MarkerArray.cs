@@ -6,8 +6,8 @@ using Newtonsoft.Json;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 using VRViz.Connections;
-using geometry_msgs = VRViz.Messages.geometry_msgs;
-//using geometry_msgs = VRViz.interfaces.geometry_msgs.msgs;
+using visualization_msgs = VRViz.Messages.visualization_msgs;
+// using visualization_msgs = VRViz.interfaces.visualization_msgs.msgs;
 
 using rviz_general = VRViz.plugins.rviz_default_plugins.general;
 using rviz_plugins = VRViz.plugins.rviz_default_plugins.plugins;
@@ -17,7 +17,7 @@ public class rviz_default_plugins_MarkerArray : rviz_prefabs.RvizPrefabBase
 {
 
     public rviz_plugins.MarkerArray config_data;
-    public geometry_msgs.MarkerArray message_data;
+    public visualization_msgs.MarkerArray message_data;
     public GameObject PointBall;
 
 
@@ -47,11 +47,11 @@ public class rviz_default_plugins_MarkerArray : rviz_prefabs.RvizPrefabBase
 
         // convert string to json object
         string msgdata = System.Text.Encoding.UTF8.GetString(msg.Message);
-        Type msgtype = Type.GetType("VRViz.Messages.geometry_msgs.MarkerArray", true);
+        Type msgtype = Type.GetType("VRViz.Messages.visualization_msgs.MarkerArray", true);
         var json = JsonConvert.DeserializeObject(msgdata, msgtype);
 
         // save message to associated display
-        this.message_data = (geometry_msgs.MarkerArray)json;
+        this.message_data = (visualization_msgs.MarkerArray)json;
         this.has_new_msg = true;
     }
 
@@ -61,14 +61,14 @@ public class rviz_default_plugins_MarkerArray : rviz_prefabs.RvizPrefabBase
         //spawn game object of arrow or axes and sets appearence
         this.log("new config being applied of type point");
 
-        pointball_handler handler = this.PointBall.GetComponent<pointball_handler>();
+        // pointball_handler handler = this.PointBall.GetComponent<pointball_handler>();
 
-		handler.Alpha = this.config_data.Alpha;
-		handler.Color = this.config_data.Color;
-		handler.Radius = this.config_data.Radius;
-		handler.HistoryLength = this.config_data.HistoryLength;
+        // handler.Alpha = this.config_data.Alpha;
+        // handler.Color = this.config_data.Color;
+        // handler.Radius = this.config_data.Radius;
+        // handler.HistoryLength = this.config_data.HistoryLength;
         
-        handler.SetConfig();
+        // handler.SetConfig();
     }
 
 
@@ -89,10 +89,10 @@ public class rviz_default_plugins_MarkerArray : rviz_prefabs.RvizPrefabBase
         }
         
         //move ball to new position
-        this.PointBall.transform.localPosition = new Vector3(
-            (float)this.message_data.point.x.data, 
-            (float)this.message_data.point.z.data, 
-            (float)this.message_data.point.y.data);
+        // this.PointBall.transform.localPosition = new Vector3(
+            // (float)this.message_data.point.x.data, 
+            // (float)this.message_data.point.z.data, 
+            // (float)this.message_data.point.y.data);
 
         this.message_data = null;
 

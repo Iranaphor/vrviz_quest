@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657832, g: 0.49641222, b: 0.57481664, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2162,7 +2162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c20840acecef43ffea9876aeef8063e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  default_mqtt_ip: mqtt.lcas.groupon
+  default_mqtt_ip: mqtt.lcas.group
   default_mqtt_port: 1883
   text_log: {fileID: 1063543379}
   rviz_table: {fileID: 1784516871}
