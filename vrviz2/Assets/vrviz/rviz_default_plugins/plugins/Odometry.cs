@@ -19,7 +19,7 @@ namespace VRViz.plugins.rviz_default_plugins.plugins {
 
 		public rviz_utils::Shape Shape;
 
-      	public bool Value;
+      	// public bool Value;
 
     }
 }

@@ -132,6 +132,8 @@ namespace VRViz.Pipeline {
                     
                 }
 
+            } else {
+                this.text_log.text = "connection failed now";
             }
         }
 
