@@ -47,23 +47,22 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
 
 
     public override void on_topic_message(MqttMsgPublishEventArgs msg) {
-        this.log("New data identified.");
+        this.log("New data identified for Map.");
         
         // convert byte array to string
         string msgdata = System.Text.Encoding.UTF8.GetString(msg.Message);
         this.log(msgdata);
 
         // convert string to json object
+        this.log("Deseraialising the map data...");
         Type msgtype = Type.GetType("VRViz.Messages.nav_msgs.OccupancyGrid", true);
         var json = JsonConvert.DeserializeObject(msgdata, msgtype);
-
-        // convert back for validation
-        string jsonString = JsonConvert.SerializeObject(json, Formatting.Indented);
-        Debug.Log("Initial Re-Deserialized JSON object: " + jsonString);
+        this.log("Look how long that fricken took...");
 
         // save message to associated display
         this.message_data = (nav_msgs.OccupancyGrid)json;
         this.has_new_msg = true;
+        Debug.Log("Map Received");
     }
 
     // Respond to recieved message
@@ -98,8 +97,7 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
     public override void apply_new_msg() {
         this.has_new_msg = false;
 
-        string jsonString = JsonConvert.SerializeObject(this.message_data, Formatting.Indented);
-        Debug.Log("Re-Deserialized JSON object: " + jsonString);
+        Debug.Log("Map Render Begun");
 
         if (this.message_data == null){
             Debug.LogError("this.message_data is null");
@@ -116,9 +114,10 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
         // Prepare the plane
         float mapWidth = width * resolution;
         float mapHeight = height * resolution;
-        this.ImagePlane.transform.localScale = new Vector3(mapWidth / 10f, 1, mapHeight / 10f);
+        this.ImagePlane.transform.localScale = new Vector3(mapWidth / 1f, 1, mapHeight / 1f);
 
         // Create texture
+        // Debug.Log("creating texture");
         Texture2D texture = new Texture2D((int)width, (int)height, TextureFormat.RGB24, false);
         Color[] pixels = new Color[width * height];
         for (int y = 0; y < height; y++) {
@@ -142,28 +141,32 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
             }
         }
 
+        // Debug.Log("Applying texture");
         texture.SetPixels(pixels);
         texture.Apply();
 
         // Apply texture
         this.ImagePlane.GetComponent<Renderer>().material.mainTexture = texture;
 
-        // Position the plane
-        this.ImagePlane.transform.position = new Vector3(
-            (float)origin.position.x.data + mapWidth / 2,
-            (float)origin.position.y.data,
-            (float)origin.position.z.data + mapHeight / 2
-        );
+        // Debug.Log("Positioning plane");
 
-        // Rotate the plane
-        Quaternion rotation = new Quaternion(
-            (float)origin.orientation.x.data,
-            (float)origin.orientation.y.data,
-            (float)origin.orientation.z.data,
-            (float)origin.orientation.w.data
-        );
-        this.ImagePlane.transform.rotation = rotation;
+        // // Position the plane
+        // this.ImagePlane.transform.position = new Vector3(
+        //     (float)origin.position.x.data + mapWidth / 2,
+        //     0.0f,
+        //     (float)origin.position.z.data + mapHeight / 2
+        // );
 
+        // // Rotate the plane
+        // Quaternion rotation = new Quaternion(
+        //     (float)origin.orientation.x.data,
+        //     (float)origin.orientation.y.data,
+        //     (float)origin.orientation.z.data,
+        //     (float)origin.orientation.w.data
+        // );
+        // this.ImagePlane.transform.rotation = rotation;
+
+        Debug.Log("Map Render Complete");
         this.message_data = null;
     }
 }
