@@ -7,7 +7,6 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Profiling;
-using VRViz.Containers;
 using VRViz.Connections;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -22,7 +21,6 @@ using rviz_prefabs = VRViz.plugins.rviz_default_plugins.prefabs;
 namespace VRViz.Pipeline {
     public class Pipeline : MonoBehaviour {
 
-        public SceneConfig config;
         private ClientManager client;
 
         private bool skip_input = true;
