@@ -11,12 +11,9 @@ namespace VRViz.plugins.rviz_default_plugins.plugins {
 		public string Style;
 
 		[JsonProperty("Size (m)")]
-		public float Size;
+		public float SizeMeters;
 
-		public uint Alpha;
-
-		[JsonProperty("Decay Time")]
-		public uint DecayTime;
+		public float Alpha;
 
 		[JsonProperty("Position Transform")]
 		public string PositionTransform;
@@ -25,6 +22,26 @@ namespace VRViz.plugins.rviz_default_plugins.plugins {
 		public string ColorTransform;
 
 		public string Color;
+
+    	[JsonProperty("Decay Time")]
+		public float DecayTime = 0f;
+    	
+    	[JsonProperty("Use Rainbow")]
+		public bool UseRainbow = true;
+    	
+    	[JsonProperty("Invert Rainbow")]
+		public bool InvertRainbow = false;
+    	
+    	[JsonProperty("Min Intensity")]
+		public float MinIntensity = 0f;
+    	
+    	[JsonProperty("Max Intensity")]
+		public float MaxIntensity = 4096f;
+    	
+		public string Axis = "Z";
+    	
+    	[JsonProperty("Channel Name")]
+		public string ChannelName = "intensity";
 
     }
 }

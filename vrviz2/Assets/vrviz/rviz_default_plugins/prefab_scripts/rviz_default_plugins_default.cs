@@ -95,9 +95,6 @@ public class rviz_default_plugins_DEFAULT : rviz_prefabs.RvizPrefabBase
     public override void apply_new_msg() {
         this.has_new_msg = false;
 
-        string jsonString = JsonConvert.SerializeObject(this.message_data, Formatting.Indented);
-        Debug.Log("Re-Deserialized JSON object: " + jsonString);
-
         if (this.message_data == null){
             Debug.LogError("this.message_data is null");
             return;

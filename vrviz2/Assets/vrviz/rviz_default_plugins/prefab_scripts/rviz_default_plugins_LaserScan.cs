@@ -26,7 +26,7 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
     public sensor_msgs.LaserScan message_data;
 
     // 5. ADD ANY GAMEOBJECTS TO INTERACT WITH HERE (THEY WILL BE ATTACHED TO THIS AS A PREFAB)
-    // public GameObject object_reference;
+    public GameObject LaserScanHandler;
 
 
     public override void on_config_message(rviz_general.Display msg) {
@@ -66,8 +66,8 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
         var json = JsonConvert.DeserializeObject(msgdata, msgtype);
 
         // convert back for validation
-        string jsonString = JsonConvert.SerializeObject(json, Formatting.Indented);
-        Debug.Log("Initial Re-Deserialized JSON object: " + jsonString);
+        // string jsonString = JsonConvert.SerializeObject(json, Formatting.Indented);
+        // Debug.Log("Initial Re-Deserialized JSON object: " + jsonString);
 
         // 8. SET THE CAST TYPE TO THE APPROPRIATE DATA MSG TYPE
         // save message to associated display
@@ -75,29 +75,36 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
         this.has_new_msg = true;
     }
 
-    // Respond to recieved message
+    // Respond to recieved config
     public override void apply_new_config() {
         //spawn game object of arrow or axes and sets appearence
         this.log("new config being applied of type DEFAULT");
 
         // 9. GET GAMEOBJECT
-        // gameobj_handler handler = this.object_reference.GetComponent<gameobj_handler>();
+        point_handler handler = this.LaserScanHandler.GetComponent<point_handler>();
 
         // 10. APPLY PROPERTIES
-        // handler.property = this.config_data.property
-        
+        handler.Style = this.config_data.Style as string;
+        handler.Alpha = Convert.ToSingle(this.config_data.Alpha);
+        handler.ColorStr = this.config_data.Color as string;
+        handler.SizeMeters = Convert.ToSingle(this.config_data.SizeMeters);
+        // handler.SizeMeters = 1;
+        handler.DecayTime = Convert.ToSingle(this.config_data.DecayTime);
+        handler.UseRainbow = Convert.ToBoolean(this.config_data.UseRainbow);
+        handler.InvertRainbow = Convert.ToBoolean(this.config_data.InvertRainbow);
+        handler.MinIntensity = Convert.ToSingle(this.config_data.MinIntensity);
+        handler.MaxIntensity = Convert.ToSingle(this.config_data.MaxIntensity);
+        handler.Axis = this.config_data.Axis as string;
+        handler.ChannelName = this.config_data.ChannelName as string;
+
         // 11. SAVE PROPERTIES
-        // handler.SetConfig();
-        
+        handler.SetConfig();    
 
     }
-    
+
     // Resond to recieved message
     public override void apply_new_msg() {
         this.has_new_msg = false;
-
-        string jsonString = JsonConvert.SerializeObject(this.message_data, Formatting.Indented);
-        Debug.Log("Re-Deserialized JSON object: " + jsonString);
 
         if (this.message_data == null){
             Debug.LogError("this.message_data is null");
@@ -105,8 +112,66 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
         }
 
         // 12. APPLY TOPIC DATA TO THE RELEVANT GAMEOBJECTS
-        // this.gameobject_reference = data
-        
+        point_handler handler = this.LaserScanHandler.GetComponent<point_handler>();
+
+
+        // Clear existing points if DecayTime is 0
+        if (handler.DecayTime <= 0f)
+        {
+            handler.ClearExistingPoints();
+        }
+
+        float angle = this.message_data.angle_min.data;
+
+        // Get the handler's global scale
+        Vector3 handlerScale = handler.transform.lossyScale;
+
+        // Avoid division by zero
+        if (handlerScale.x == 0) handlerScale.x = 1;
+        if (handlerScale.y == 0) handlerScale.y = 1;
+        if (handlerScale.z == 0) handlerScale.z = 1;
+
+        for (int i = 0; i < this.message_data.ranges.Length; i++)
+        {
+            float range = this.message_data.ranges[i].data;
+            float intensity = (this.message_data.intensities != null && this.message_data.intensities.Length > i) ? this.message_data.intensities[i].data : 0f;
+
+            // Skip invalid measurements
+            if (range < this.message_data.range_min.data || range > this.message_data.range_max.data)
+            {
+                angle += this.message_data.angle_increment.data;
+                continue;
+            }
+
+            // Instantiate the point as a child of handler.transform
+            GameObject point = Instantiate(handler.pointsPrefab, handler.transform);
+
+            // Calculate and adjust the local position
+            Vector3 position = handler.CalculatePosition(range, angle);
+            position = new Vector3(
+                position.x / handlerScale.x,
+                position.y / handlerScale.y,
+                position.z / handlerScale.z
+            );
+            point.transform.localPosition = position;
+
+            // Adjust the local scale
+            Vector3 adjustedScale = new Vector3(
+                handler.SizeMeters / handlerScale.x,
+                handler.SizeMeters / handlerScale.y,
+                handler.SizeMeters / handlerScale.z
+            );
+            point.transform.localScale = adjustedScale;
+            
+            // Set visual properties
+            handler.ApplyVisualProperties(point, intensity);
+
+            // Add to lists for decay management
+            handler.scanPoints.Add(point);
+            handler.pointTimestamps.Add(Time.time);
+
+            angle += this.message_data.angle_increment.data;
+        }
 
         this.message_data = null;
     }
