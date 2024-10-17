@@ -16,17 +16,17 @@ using rviz_plugins = VRViz.plugins.rviz_default_plugins.plugins;
 using rviz_prefabs = VRViz.plugins.rviz_default_plugins.prefabs;
 
 // 2. CHANGE NAME TO END WITH APPROPRIATE PLUGIN MSG TYPE
-public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
+public class rviz_default_plugins_PointCloud2 : rviz_prefabs.RvizPrefabBase
 {
 
     // 3. CHANGE TO APPROPRIATE PLUGIN MSG TYPE
-    public rviz_plugins.LaserScan config_data;
+    public rviz_plugins.PointCloud2 config_data;
 
     // 4. CHANGE TO APPROPRIATE DATA MSG TYPE
-    public sensor_msgs.LaserScan message_data;
+    public sensor_msgs.PointCloud2 message_data;
 
     // 5. ADD ANY GAMEOBJECTS TO INTERACT WITH HERE (THEY WILL BE ATTACHED TO THIS AS A PREFAB)
-    public GameObject LaserScanHandler;
+    public GameObject PointCloud2Handler;
 
 
     public override void on_config_message(rviz_general.Display msg) {
@@ -35,7 +35,7 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
 
         // 6. SET THE CAST TYPE TO THE APPROPRIATE PLUGIN MSG TYPE
         // save message to associated display
-        this.config_data = (rviz_plugins.LaserScan)msg; 
+        this.config_data = (rviz_plugins.PointCloud2)msg; 
         this.has_new_config = true;
 
         // Subscribe to the associated topic
@@ -62,16 +62,12 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
 
         // 7. SET THE CAST TYPE TO THE APPROPRIATE DATA MSG TYPE
         // convert string to json object
-        Type msgtype = Type.GetType("VRViz.Messages.sensor_msgs.LaserScan", true);
+        Type msgtype = Type.GetType("VRViz.Messages.sensor_msgs.PointCloud2", true);
         var json = JsonConvert.DeserializeObject(msgdata, msgtype);
-
-        // convert back for validation
-        // string jsonString = JsonConvert.SerializeObject(json, Formatting.Indented);
-        // Debug.Log("Initial Re-Deserialized JSON object: " + jsonString);
-
+        
         // 8. SET THE CAST TYPE TO THE APPROPRIATE DATA MSG TYPE
         // save message to associated display
-        this.message_data = (sensor_msgs.LaserScan)json;
+        this.message_data = (sensor_msgs.PointCloud2)json;
         this.has_new_msg = true;
     }
 
@@ -81,7 +77,7 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
         this.log("new config being applied of type DEFAULT");
 
         // 9. GET GAMEOBJECT
-        point_handler handler = this.LaserScanHandler.GetComponent<point_handler>();
+        point_handler handler = this.PointCloud2Handler.GetComponent<point_handler>();
 
         // 10. APPLY PROPERTIES
         handler.Style = this.config_data.Style as string;
@@ -102,8 +98,10 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
 
     }
 
-    // Resond to recieved message
-    public override void apply_new_msg() {
+
+    // Respond to received message
+    public override void apply_new_msg()
+    {
         this.has_new_msg = false;
 
         if (this.message_data == null)
@@ -113,9 +111,7 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
         }
 
         // Get the point_handler component
-        point_handler handler = this.LaserScanHandler.GetComponent<point_handler>();
-
-        float angle = this.message_data.angle_min.data;
+        point_handler handler = this.PointCloud2Handler.GetComponent<point_handler>();
 
         // Get the handler's global scale
         Vector3 handlerScale = handler.transform.lossyScale;
@@ -125,28 +121,59 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
         if (handlerScale.y == 0) handlerScale.y = 1;
         if (handlerScale.z == 0) handlerScale.z = 1;
 
-        // Update existing points or create new ones as needed
+        // Build a dictionary of field offsets and datatypes
+        Dictionary<string, (int offset, int datatype)> fieldDict = new Dictionary<string, (int, int)>();
+
+        foreach (var field in this.message_data.fields)
+        {
+            fieldDict[field.name.data] = ((int)field.offset.data, (int)field.datatype.data);
+        }
+
+        // Check if x, y, z fields are present
+        if (!fieldDict.ContainsKey("x") || !fieldDict.ContainsKey("y") || !fieldDict.ContainsKey("z"))
+        {
+            Debug.LogError("PointCloud2 message does not contain x, y, z fields");
+            return;
+        }
+
+        int numPoints = (int)(this.message_data.width.data * this.message_data.height.data);
+        int pointStep = (int)this.message_data.point_step.data;
+        bool isBigEndian = this.message_data.is_bigendian.data;
+
+        // Convert data to byte array
+        byte[] dataBytes = new byte[this.message_data.data.Length];
+        for (int i = 0; i < dataBytes.Length; i++)
+        {
+            dataBytes[i] = this.message_data.data[i];
+        }
+
         int pointIndex = 0;
 
-        for (int i = 0; i < this.message_data.ranges.Length; i++)
+        for (int i = 0; i < numPoints; i++)
         {
-            float range = this.message_data.ranges[i].data;
-            float intensity = (this.message_data.intensities != null && this.message_data.intensities.Length > i) ? this.message_data.intensities[i].data : 0f;
+            int pointBase = i * pointStep;
 
-            // Skip invalid measurements
-            if (range < this.message_data.range_min.data || range > this.message_data.range_max.data)
+            float x = Convert.ToSingle(ReadValueFromData(dataBytes, pointBase + fieldDict["x"].offset, fieldDict["x"].datatype, isBigEndian));
+            float y = Convert.ToSingle(ReadValueFromData(dataBytes, pointBase + fieldDict["y"].offset, fieldDict["y"].datatype, isBigEndian));
+            float z = Convert.ToSingle(ReadValueFromData(dataBytes, pointBase + fieldDict["z"].offset, fieldDict["z"].datatype, isBigEndian));
+
+            float intensity = 0f;
+            if (fieldDict.ContainsKey("intensity"))
             {
-                angle += this.message_data.angle_increment.data;
+                intensity = (float)ReadValueFromData(dataBytes, pointBase + fieldDict["intensity"].offset, fieldDict["intensity"].datatype, isBigEndian);
+            }
+
+            // Check if x, y, z are valid
+            if (float.IsNaN(x) || float.IsInfinity(x) ||
+                float.IsNaN(y) || float.IsInfinity(y) ||
+                float.IsNaN(z) || float.IsInfinity(z))
+            {
                 continue;
             }
 
-            // Calculate position
-            Vector3 position = handler.CalculatePosition(range, angle);
-            position = new Vector3(
-                position.x / handlerScale.x,
-                position.y / handlerScale.y,
-                position.z / handlerScale.z
-            );
+            // Adjust for handler's scale
+            Vector3 position = new Vector3(x / handlerScale.x, y / handlerScale.y, z / handlerScale.z);
+
             GameObject point;
 
             if (pointIndex < handler.scanPoints.Count)
@@ -173,7 +200,6 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
             handler.pointTimestamps[pointIndex] = Time.time;
 
             pointIndex++;
-            angle += this.message_data.angle_increment.data;
         }
 
         // Deactivate any excess points
@@ -184,5 +210,43 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
 
         this.message_data = null;
     }
+
+    private double ReadValueFromData(byte[] data, int offset, int datatype, bool isBigEndian)
+    {
+        switch (datatype)
+        {
+            case 1: // INT8
+                return (sbyte)data[offset];
+            case 2: // UINT8
+                return data[offset];
+            case 3: // INT16
+                return BitConverter.ToInt16(GetSubArray(data, offset, 2, isBigEndian), 0);
+            case 4: // UINT16
+                return BitConverter.ToUInt16(GetSubArray(data, offset, 2, isBigEndian), 0);
+            case 5: // INT32
+                return BitConverter.ToInt32(GetSubArray(data, offset, 4, isBigEndian), 0);
+            case 6: // UINT32
+                return BitConverter.ToUInt32(GetSubArray(data, offset, 4, isBigEndian), 0);
+            case 7: // FLOAT32
+                return BitConverter.ToSingle(GetSubArray(data, offset, 4, isBigEndian), 0);
+            case 8: // FLOAT64
+                return BitConverter.ToDouble(GetSubArray(data, offset, 8, isBigEndian), 0);
+            default:
+                throw new Exception("Unsupported datatype: " + datatype);
+        }
+    }
+
+    // Helper function to handle endianess
+    private byte[] GetSubArray(byte[] data, int index, int length, bool isBigEndian)
+    {
+        byte[] result = new byte[length];
+        Array.Copy(data, index, result, 0, length);
+        if (BitConverter.IsLittleEndian != !isBigEndian)
+        {
+            Array.Reverse(result);
+        }
+        return result;
+    }
+
 
 }

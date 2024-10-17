@@ -14,8 +14,7 @@ namespace VRViz.Messages.sensor_msgs {
 		public std_msgs::Bool is_bigendian;
 		public std_msgs::UInt32 point_step;
 		public std_msgs::UInt32 row_step;
-		[JsonConverter(typeof(UInt8B64Converter))]
-		public std_msgs::UInt8[] data;
+    	public byte[] data; // Use byte[] since values are between 0-255
 		public std_msgs::Bool is_dense;
 		public static string ToRosString() { return "sensor_msgs.msg:PointCloud2"; }
 	}

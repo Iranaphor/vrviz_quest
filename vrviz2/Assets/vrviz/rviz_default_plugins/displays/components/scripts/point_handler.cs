@@ -27,8 +27,6 @@ public class point_handler : MonoBehaviour
 
     void Update()
     {
-        // Optionally, you can call SetConfig() here if configurations can change during runtime
-        // this.SetConfig();
         HandleDecay();
     }
 
@@ -45,8 +43,8 @@ public class point_handler : MonoBehaviour
         {
             // Use specified MinColor and MaxColor
             intensityGradient = new Gradient();
-            Color minColor = ParseColorString(ColorStr); // Assuming 'Color' represents MinColor
-            Color maxColor = ParseColorString(ColorStr); // For simplicity, using the same color
+            Color minColor = ParseColorString(ColorStr);
+            Color maxColor = ParseColorString(ColorStr); // Using the same color for simplicity
             GradientColorKey[] colorKeys = new GradientColorKey[2];
             colorKeys[0].color = minColor;
             colorKeys[0].time = 0f;
@@ -85,8 +83,8 @@ public class point_handler : MonoBehaviour
         }
         else
         {
-            float t = Mathf.InverseLerp(MinIntensity, MaxIntensity, intensity);
-            color = intensityGradient.Evaluate(t);
+            // Since MinColor and MaxColor are the same, t is not needed
+            color = intensityGradient.Evaluate(0f);
         }
 
         color.a = Alpha;
@@ -97,26 +95,17 @@ public class point_handler : MonoBehaviour
     {
         if (DecayTime > 0f)
         {
-            for (int i = scanPoints.Count - 1; i >= 0; i--)
+            float currentTime = Time.time;
+
+            for (int i = 0; i < scanPoints.Count; i++)
             {
-                if (Time.time - pointTimestamps[i] > DecayTime)
+                if (scanPoints[i].activeSelf && currentTime - pointTimestamps[i] > DecayTime)
                 {
-                    Destroy(scanPoints[i]);
-                    scanPoints.RemoveAt(i);
-                    pointTimestamps.RemoveAt(i);
+                    // Deactivate the point
+                    scanPoints[i].SetActive(false);
                 }
             }
         }
-    }
-
-    public void ClearExistingPoints()
-    {
-        foreach (var point in scanPoints)
-        {
-            Destroy(point);
-        }
-        scanPoints.Clear();
-        pointTimestamps.Clear();
     }
 
     private GradientColorKey[] GenerateRainbowGradient(bool invert)
@@ -141,9 +130,9 @@ public class point_handler : MonoBehaviour
     private Color ParseColorString(string colorStr)
     {
         string[] parts = colorStr.Split(',');
-        float r = float.Parse(parts[0]) / 255f;
-        float g = float.Parse(parts[1]) / 255f;
-        float b = float.Parse(parts[2]) / 255f;
+        float r = float.Parse(parts[0].Trim()) / 255f;
+        float g = float.Parse(parts[1].Trim()) / 255f;
+        float b = float.Parse(parts[2].Trim()) / 255f;
         return new Color(r, g, b, Alpha);
     }
 }
