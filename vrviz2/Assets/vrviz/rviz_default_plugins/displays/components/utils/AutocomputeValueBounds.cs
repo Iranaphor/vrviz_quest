@@ -3,13 +3,13 @@ using rviz_utils = VRViz.plugins.rviz_default_plugins.utils;
 using Newtonsoft.Json;
         
 namespace VRViz.plugins.rviz_default_plugins.utils {
-	public class AutoComputeValueBounds {
+	public class AutocomputeValueBounds {
 
 		[JsonProperty("Min Value")]
-		public int MinValue;
+		public float MinValue;
 
 		[JsonProperty("Max Value")]
-		public int MaxValue;
+		public float MaxValue;
 
 		public bool Value;
 	}

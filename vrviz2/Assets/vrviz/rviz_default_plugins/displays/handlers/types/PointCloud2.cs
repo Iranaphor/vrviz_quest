@@ -52,7 +52,7 @@ namespace VRViz.plugins.rviz_default_plugins.plugins {
         public bool AutocomputeIntensityBounds;
 
         [JsonProperty("Autocompute Value Bounds")]
-        public rviz_utils::AutoComputeValueBounds AutocomputeValueBounds;
+        public rviz_utils::AutocomputeValueBounds AutocomputeValueBounds;
 
         [JsonProperty("Use Fixed Frame")]
         public bool UseFixedFrame;

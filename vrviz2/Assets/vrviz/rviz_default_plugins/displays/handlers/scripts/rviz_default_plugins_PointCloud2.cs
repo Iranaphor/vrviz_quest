@@ -112,18 +112,28 @@ public class rviz_default_plugins_PointCloud2 : rviz_prefabs.RvizPrefabBase
 
         // Get the point_handler component
         point_handler handler = this.PointCloud2Handler.GetComponent<point_handler>();
+        ParticleSystem particleSystem = handler.GetComponent<ParticleSystem>();
 
-        // Get the handler's global scale
-        Vector3 handlerScale = handler.transform.lossyScale;
+        if (particleSystem == null)
+        {
+            Debug.LogError("ParticleSystem component not found on PointCloud2Handler.");
+            return;
+        }
 
-        // Avoid division by zero
-        if (handlerScale.x == 0) handlerScale.x = 1;
-        if (handlerScale.y == 0) handlerScale.y = 1;
-        if (handlerScale.z == 0) handlerScale.z = 1;
+        ParticleSystem.MainModule mainModule = particleSystem.main;
+        mainModule.startLifetime = Mathf.Infinity;
+
+        // Set particle size
+        mainModule.startSize = handler.SizeMeters;
+
+        // Get the ParticleSystem's Particle array
+        int numPoints = (int)(this.message_data.width.data * this.message_data.height.data);
+        mainModule.maxParticles = numPoints;
+
+        ParticleSystem.Particle[] particles = new ParticleSystem.Particle[numPoints];
 
         // Build a dictionary of field offsets and datatypes
         Dictionary<string, (int offset, int datatype)> fieldDict = new Dictionary<string, (int, int)>();
-
         foreach (var field in this.message_data.fields)
         {
             fieldDict[field.name.data] = ((int)field.offset.data, (int)field.datatype.data);
@@ -136,32 +146,53 @@ public class rviz_default_plugins_PointCloud2 : rviz_prefabs.RvizPrefabBase
             return;
         }
 
-        int numPoints = (int)(this.message_data.width.data * this.message_data.height.data);
         int pointStep = (int)this.message_data.point_step.data;
         bool isBigEndian = this.message_data.is_bigendian.data;
 
-        // Convert data to byte array
-        byte[] dataBytes = new byte[this.message_data.data.Length];
-        for (int i = 0; i < dataBytes.Length; i++)
+        byte[] dataBytes = this.message_data.data;
+
+        // Check data length
+        int expectedDataLength = numPoints * pointStep;
+        if (dataBytes.Length != expectedDataLength)
         {
-            dataBytes[i] = this.message_data.data[i];
+            Debug.LogError($"Data length mismatch: expected {expectedDataLength}, got {dataBytes.Length}");
+            return;
         }
 
-        int pointIndex = 0;
+        float minIntensity = float.MaxValue;
+        float maxIntensity = float.MinValue;
+
+        if (fieldDict.ContainsKey("intensity"))
+        {
+            // First pass to find min and max intensity
+            for (int i = 0; i < numPoints; i++)
+            {
+                int pointBase = i * pointStep;
+                float intensity = (float)ReadValueFromData(
+                    dataBytes,
+                    pointBase + fieldDict["intensity"].offset,
+                    fieldDict["intensity"].datatype,
+                    isBigEndian
+                );
+                if (intensity < minIntensity) minIntensity = intensity;
+                if (intensity > maxIntensity) maxIntensity = intensity;
+            }
+        }
+        else
+        {
+            minIntensity = 0f;
+            maxIntensity = 1f;
+        }
+
+        int particleIndex = 0;
 
         for (int i = 0; i < numPoints; i++)
         {
             int pointBase = i * pointStep;
 
-            float x = Convert.ToSingle(ReadValueFromData(dataBytes, pointBase + fieldDict["x"].offset, fieldDict["x"].datatype, isBigEndian));
-            float y = Convert.ToSingle(ReadValueFromData(dataBytes, pointBase + fieldDict["y"].offset, fieldDict["y"].datatype, isBigEndian));
-            float z = Convert.ToSingle(ReadValueFromData(dataBytes, pointBase + fieldDict["z"].offset, fieldDict["z"].datatype, isBigEndian));
-
-            float intensity = 0f;
-            if (fieldDict.ContainsKey("intensity"))
-            {
-                intensity = (float)ReadValueFromData(dataBytes, pointBase + fieldDict["intensity"].offset, fieldDict["intensity"].datatype, isBigEndian);
-            }
+            float x = (float)ReadValueFromData(dataBytes, pointBase + fieldDict["x"].offset, fieldDict["x"].datatype, isBigEndian);
+            float y = (float)ReadValueFromData(dataBytes, pointBase + fieldDict["y"].offset, fieldDict["y"].datatype, isBigEndian);
+            float z = (float)ReadValueFromData(dataBytes, pointBase + fieldDict["z"].offset, fieldDict["z"].datatype, isBigEndian);
 
             // Check if x, y, z are valid
             if (float.IsNaN(x) || float.IsInfinity(x) ||
@@ -171,45 +202,50 @@ public class rviz_default_plugins_PointCloud2 : rviz_prefabs.RvizPrefabBase
                 continue;
             }
 
-            // Adjust for handler's scale
-            Vector3 position = new Vector3(x / handlerScale.x, y / handlerScale.y, z / handlerScale.z);
-
-            GameObject point;
-
-            if (pointIndex < handler.scanPoints.Count)
+            // Read intensity
+            float intensity = 1.0f;
+            if (fieldDict.ContainsKey("intensity"))
             {
-                // Reuse existing point
-                point = handler.scanPoints[pointIndex];
-                point.SetActive(true);
+                intensity = (float)ReadValueFromData(
+                    dataBytes,
+                    pointBase + fieldDict["intensity"].offset,
+                    fieldDict["intensity"].datatype,
+                    isBigEndian
+                );
+
+                // Normalize intensity
+                if (maxIntensity > minIntensity)
+                {
+                    intensity = (intensity - minIntensity) / (maxIntensity - minIntensity);
+                }
+                else
+                {
+                    intensity = 1.0f; // Avoid division by zero
+                }
             }
-            else
-            {
-                // Instantiate new point and add to list
-                point = Instantiate(handler.pointsPrefab, handler.transform);
-                handler.scanPoints.Add(point);
-                handler.pointTimestamps.Add(Time.time); // Record spawn time for decay
-            }
 
-            // Update point properties
-            point.transform.localPosition = position;
-            point.transform.localScale = Vector3.one * handler.SizeMeters;
+            // Apply intensity to color
+            Color particleColor = new Color(intensity, intensity, intensity, 1.0f);
 
-            handler.ApplyVisualProperties(point, intensity);
+            // Create particle
+            ParticleSystem.Particle particle = new ParticleSystem.Particle();
+            particle.position = new Vector3(x, y, z);
+            particle.startColor = particleColor;
+            particle.startSize = handler.SizeMeters;
+            particle.remainingLifetime = Mathf.Infinity;
 
-            // Update timestamp for decay
-            handler.pointTimestamps[pointIndex] = Time.time;
-
-            pointIndex++;
+            particles[particleIndex] = particle;
+            particleIndex++;
         }
 
-        // Deactivate any excess points
-        for (int i = pointIndex; i < handler.scanPoints.Count; i++)
-        {
-            handler.scanPoints[i].SetActive(false);
-        }
+        // Clear existing particles
+        particleSystem.Clear();
 
-        this.message_data = null;
+        // Set particles to the particle system
+        particleSystem.SetParticles(particles, particleIndex);
     }
+
+
 
     private double ReadValueFromData(byte[] data, int offset, int datatype, bool isBigEndian)
     {
