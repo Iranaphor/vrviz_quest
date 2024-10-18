@@ -58,6 +58,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3900512862510415953}
     m_Modifications:
+    - target: {fileID: -2067838814479090842, guid: dfabc7251ea783454a10bee27cdbd7da, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: eddbd928aa9ab15e380e66888b5d4ffb, type: 2}
     - target: {fileID: 1654800658712815891, guid: dfabc7251ea783454a10bee27cdbd7da, type: 3}
       propertyPath: m_Name
       value: PointHandler

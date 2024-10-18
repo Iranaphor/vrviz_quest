@@ -98,10 +98,8 @@ public class rviz_default_plugins_PointCloud2 : rviz_prefabs.RvizPrefabBase
 
     }
 
-
     // Respond to received message
-    public override void apply_new_msg()
-    {
+    public override void apply_new_msg() {
         this.has_new_msg = false;
 
         if (this.message_data == null)
@@ -202,30 +200,35 @@ public class rviz_default_plugins_PointCloud2 : rviz_prefabs.RvizPrefabBase
                 continue;
             }
 
-            // Read intensity
-            float intensity = 1.0f;
-            if (fieldDict.ContainsKey("intensity"))
+            Color particleColor = Color.white;
+
+            // Check for RGB fields
+            if (fieldDict.ContainsKey("red") && fieldDict.ContainsKey("green") && fieldDict.ContainsKey("blue"))
             {
-                intensity = (float)ReadValueFromData(
-                    dataBytes,
-                    pointBase + fieldDict["intensity"].offset,
-                    fieldDict["intensity"].datatype,
-                    isBigEndian
-                );
+                // Debug.Log("Colour is RGB");
+                float r = (float)ReadValueFromData(dataBytes, pointBase + fieldDict["red"].offset, fieldDict["red"].datatype, isBigEndian) / 255f;
+                float g = (float)ReadValueFromData(dataBytes, pointBase + fieldDict["green"].offset, fieldDict["green"].datatype, isBigEndian) / 255f;
+                float b = (float)ReadValueFromData(dataBytes, pointBase + fieldDict["blue"].offset, fieldDict["blue"].datatype, isBigEndian) / 255f;
+                // Debug.Log($"RGB: ({r}, {g}, {b})");
+
+                particleColor = new Color(r, g, b, 1.0f);
+            }
+            else if (fieldDict.ContainsKey("intensity"))
+            {
+                Debug.Log("Colour is Intensity");
+                // Read intensity
+                float intensity = (float)ReadValueFromData(dataBytes, pointBase + fieldDict["intensity"].offset, fieldDict["intensity"].datatype, isBigEndian);
 
                 // Normalize intensity
-                if (maxIntensity > minIntensity)
-                {
+                if (maxIntensity > minIntensity) {
                     intensity = (intensity - minIntensity) / (maxIntensity - minIntensity);
-                }
-                else
-                {
+                } else {
                     intensity = 1.0f; // Avoid division by zero
                 }
-            }
 
-            // Apply intensity to color
-            Color particleColor = new Color(intensity, intensity, intensity, 1.0f);
+                // Apply intensity to color
+                particleColor = new Color(intensity, intensity, intensity, 1.0f);
+            }
 
             // Create particle
             ParticleSystem.Particle particle = new ParticleSystem.Particle();
@@ -244,6 +247,7 @@ public class rviz_default_plugins_PointCloud2 : rviz_prefabs.RvizPrefabBase
         // Set particles to the particle system
         particleSystem.SetParticles(particles, particleIndex);
     }
+
 
 
 
