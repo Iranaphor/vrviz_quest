@@ -66,6 +66,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PointHandler
       objectReference: {fileID: 0}
+    - target: {fileID: 4065317922366014244, guid: dfabc7251ea783454a10bee27cdbd7da, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 100000
+      objectReference: {fileID: 0}
     - target: {fileID: 9112234404412501734, guid: dfabc7251ea783454a10bee27cdbd7da, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
