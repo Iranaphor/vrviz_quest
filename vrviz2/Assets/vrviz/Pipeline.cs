@@ -24,7 +24,6 @@ namespace VRViz.Pipeline {
         private ClientManager client;
 
         private bool skip_input = true;
-        // private string default_mqtt_ip = "127.0.0.1";
         public string default_mqtt_ip = "192.168.137.95";
         public int default_mqtt_port = 8883;
 
@@ -35,13 +34,9 @@ namespace VRViz.Pipeline {
         public Text text_log;
         public GameObject rviz_table;
 
-        void Start()
+        void Awake()
         {
             if (this.skip_input == true) {
-                //hide mqtt input boxes
-                // mqtt_ip_input.getgameobject().disable = True
-                // mqtt_port_input.getgameobject().disable = True
-
                 //connect to mqtt
                 connect_to_mqtt(this.default_mqtt_ip, this.default_mqtt_port);
             }
@@ -67,7 +62,7 @@ namespace VRViz.Pipeline {
             }
             if (this.client.client.IsConnected) {
 
-                //once connected, open a topic for the configuration. details
+                //once connected, open a topic for the configuration details
                 if (this.client.on_connection_action) {
                     // define on_message callback
                     this.client.client.MqttMsgPublishReceived += this.on_message;
