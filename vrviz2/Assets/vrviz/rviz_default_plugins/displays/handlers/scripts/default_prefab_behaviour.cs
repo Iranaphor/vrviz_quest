@@ -16,6 +16,7 @@ namespace VRViz.plugins.rviz_default_plugins.prefabs {
     {
         // Generic items required within the Pipeline class should be defined here.
         public ClientManager mqtt_client;
+        public string mqtt_namespace;
         public Text text_log;
         public bool has_new_config;
         public bool has_new_msg;

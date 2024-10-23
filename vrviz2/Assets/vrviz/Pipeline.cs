@@ -17,6 +17,7 @@ using Newtonsoft.Json.Linq;
 
 using rviz_general = VRViz.plugins.rviz_default_plugins.general;
 using rviz_prefabs = VRViz.plugins.rviz_default_plugins.prefabs;
+using tf2_msgs = VRViz.Messages.tf2_msgs;
 
 namespace VRViz.Pipeline {
     public class Pipeline : MonoBehaviour {
@@ -26,6 +27,8 @@ namespace VRViz.Pipeline {
         private bool skip_input = true;
         public string default_mqtt_ip = "192.168.137.95";
         public int default_mqtt_port = 8883;
+        public string default_mqtt_namespace = "vrviz";
+        
 
         private Dictionary<string, GameObject> displays = new Dictionary<string, GameObject>();
         private List<rviz_general.Display> queue_prefab_generation;
@@ -69,12 +72,17 @@ namespace VRViz.Pipeline {
                     this.client.on_connection_action = false;
 
                     this.text_log.text = "connection completed wooo";
-                    // this.client.client.Publish("vrviz/LOG", "connection completed wooo");
+                    // this.client.client.Publish(this.default_mqtt_namespace+"LOG", "connection completed wooo");
                     //Debug.Log("connection completed woo");
 
-                    // subscribe to topic
+                    // subscribe to rviz config file
                     byte[] qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
-                    string[] topic = new string[] { "vrviz/META" };
+                    string[] topic = new string[] { this.default_mqtt_namespace+"/META/rviz_config" };
+                    this.client.client.Subscribe(topic, qos);
+
+                    // subscribe to tf links
+                    qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
+                    topic = new string[] { this.default_mqtt_namespace+"/TF/tf_static" };
                     this.client.client.Subscribe(topic, qos);
                 }
 
@@ -98,10 +106,11 @@ namespace VRViz.Pipeline {
                             go.transform.SetParent(rviz_table.transform, false);
                             
                             // save prefab for later use
-                            this.displays["vrviz"+display.Topic.Value] = go;
+                            this.displays[this.default_mqtt_namespace+"/TOPIC"+display.Topic.Value] = go;
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().initial_config = true;
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().text_log = this.text_log;
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().mqtt_client = this.client;
+                            go.GetComponent<rviz_prefabs.RvizPrefabBase>().mqtt_namespace = this.default_mqtt_namespace;
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().on_config_message(display);
 
                         } else {
@@ -137,7 +146,7 @@ namespace VRViz.Pipeline {
             Debug.Log("JSON string: " + msg);
 
             // if the message is detailing a new configuration
-            if (raw_msg.Topic == "vrviz/META") {
+            if (raw_msg.Topic == this.default_mqtt_namespace+"/META/rviz_config") {
                 //Debug.Log("Recieved META from vrviz/META");
 
                 // convert string to json object
@@ -145,9 +154,6 @@ namespace VRViz.Pipeline {
                 settings.Converters.Add(new DisplayConverter());
                 var json = JsonConvert.DeserializeObject<rviz_general.Config>(msg, settings);
               
-                // Serialize the json object back to a string and print it
-                //string jsonString = JsonConvert.SerializeObject(json, Formatting.Indented);
-                //Debug.Log("Re-Deserialized JSON object: " + jsonString);
 
                 //check if null
                 if (json == null) {
@@ -190,15 +196,32 @@ namespace VRViz.Pipeline {
                     if (this.displays.ContainsKey(display.Topic.Value)) {
                         // get existing reference
                         Debug.Log("Updating config for Topic: "+display.Topic.Value);
-                        go = (GameObject)this.displays["vrviz"+display.Topic.Value];
+                        go = (GameObject)this.displays[this.default_mqtt_namespace+"/TOPIC/"+display.Topic.Value];
                         go.GetComponent<rviz_prefabs.RvizPrefabBase>().on_config_message(display);
                     } else {
                         this.queue_prefab_generation.Add(display);
                     }
                 }
             
+            } 
+            else if (raw_msg.Topic == this.default_mqtt_namespace+"/TF/tf_static") {
+                // if the message is detailing a new configuration
+                Debug.Log("Recieved TF from "+this.default_mqtt_namespace+"/TF/tf_static");
 
-            } else {
+                // convert string to json object
+                var settings = new JsonSerializerSettings();
+                settings.Converters.Add(new DisplayConverter());
+                var json = JsonConvert.DeserializeObject<tf2_msgs.TFMessage>(msg, settings);
+
+
+                // WHAT DO WE DO HERE THEN?
+
+                // while loop through each link recieved and if the link parent and child both exist in the scene, we move them
+                // otherwise we save till a message comes in?
+                // im not too sure ont he specifics, we cant just move them to be parent and child as they have other components :/
+
+            }
+            else {
                 // ... or send message to prefab for processing
                 Debug.Log("Updating data for Topic: "+raw_msg.Topic);
                 this.queue_prefab_msg.Add(raw_msg);

@@ -36,7 +36,7 @@ public class rviz_default_plugins_Pose : rviz_prefabs.RvizPrefabBase
 
             // subscribe to topic
             byte[] qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
-            string[] topic = new string[] { "vrviz"+this.config_data.Topic.Value };
+            string[] topic = new string[] { this.mqtt_namespace+"/TOPIC"+this.config_data.Topic.Value };
             this.mqtt_client.client.Subscribe(topic, qos);
             
             this.initial_config = false;
