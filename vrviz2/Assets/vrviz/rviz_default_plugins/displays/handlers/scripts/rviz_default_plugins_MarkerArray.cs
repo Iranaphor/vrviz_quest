@@ -79,6 +79,7 @@ public class rviz_default_plugins_MarkerArray : rviz_prefabs.RvizPrefabBase
     public override void apply_new_msg() {
         this.log("new msg being applied of type point");
         this.has_new_msg = false;
+        // this.set_frame(this.message_data.header.frame_id.data);
         
         //string jsonString = JsonConvert.SerializeObject(this.message_data, Formatting.Indented);
         //Debug.Log("Re-Deserialized JSON object: " + jsonString);

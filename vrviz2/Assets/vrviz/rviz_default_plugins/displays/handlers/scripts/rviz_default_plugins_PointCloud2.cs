@@ -101,6 +101,7 @@ public class rviz_default_plugins_PointCloud2 : rviz_prefabs.RvizPrefabBase
     // Respond to received message
     public override void apply_new_msg() {
         this.has_new_msg = false;
+        this.set_frame(this.message_data.header.frame_id.data);
 
         if (this.message_data == null)
         {

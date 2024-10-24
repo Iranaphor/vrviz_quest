@@ -33,9 +33,15 @@ namespace VRViz.Pipeline {
         private Dictionary<string, GameObject> displays = new Dictionary<string, GameObject>();
         private List<rviz_general.Display> queue_prefab_generation;
         private List<MqttMsgPublishEventArgs> queue_prefab_msg = new List<MqttMsgPublishEventArgs>();
+        public GameObject NoTF_Table;
 
         public Text text_log;
-        public GameObject rviz_table;
+
+        private Dictionary<string, GameObject> tf_links = new Dictionary<string, GameObject>();
+        private tf2_msgs.TFMessage tf_link_details;
+        public GameObject TF_Root;
+        public GameObject TF_Link;
+        private bool new_tf_data;
 
         void Awake()
         {
@@ -103,7 +109,7 @@ namespace VRViz.Pipeline {
 
                         if (prefab != null) {
                             GameObject go = Instantiate(prefab);
-                            go.transform.SetParent(rviz_table.transform, false);
+                            go.transform.SetParent(NoTF_Table.transform, false);
                             
                             // save prefab for later use
                             this.displays[this.default_mqtt_namespace+"/TOPIC"+display.Topic.Value] = go;
@@ -132,6 +138,58 @@ namespace VRViz.Pipeline {
                         go.GetComponent<rviz_prefabs.RvizPrefabBase>().on_topic_message(msg);
                     }
                     
+                }
+
+                if (this.new_tf_data) {
+                    this.new_tf_data = false;
+
+                    // Create prefabs for each TF frame and save them for later referencing
+                    foreach (var t in this.tf_link_details.transforms)
+                    {
+                        // Create and save parent prefab if new
+                        if (this.tf_links.ContainsKey(t.header.frame_id.data))
+                            continue;
+                        GameObject go = Instantiate(this.TF_Link);
+                        go.transform.SetParent(TF_Root.transform, false);
+                        go.name = "TF: "+t.header.frame_id.data;
+                        this.tf_links[t.header.frame_id.data] = go;
+
+                        // Create and save child prefab if new
+                        if (this.tf_links.ContainsKey(t.child_frame_id.data))
+                            continue;
+                        GameObject go_child = Instantiate(this.TF_Link);
+                        go_child.transform.SetParent(TF_Root.transform, false);
+                        go_child.name = "TF: "+t.child_frame_id.data;
+                        this.tf_links[t.child_frame_id.data] = go_child;
+                    }
+
+                    // For each TF link, if the link and its child both exist, link them together
+                    foreach (var t in this.tf_link_details.transforms)
+                    {
+                        if (!this.tf_links.ContainsKey(t.child_frame_id.data))
+                            continue;
+
+                        Transform parent = this.TF_Root.transform;
+                        if (this.tf_links.ContainsKey(t.header.frame_id.data))
+                            parent = this.tf_links[t.header.frame_id.data].transform;
+                        
+                        this.tf_links[t.child_frame_id.data].transform.SetParent(parent, false);
+
+                        // Update the transform of the child
+                        var childTransform = this.tf_links[t.child_frame_id.data].transform;
+                        childTransform.localPosition = new Vector3(
+                            (float)t.transform.translation.x.data,
+                            (float)t.transform.translation.y.data,
+                            (float)t.transform.translation.z.data
+                        );
+                        childTransform.localRotation = new Quaternion(
+                            (float)t.transform.rotation.x.data,
+                            (float)t.transform.rotation.y.data,
+                            (float)t.transform.rotation.z.data,
+                            (float)t.transform.rotation.w.data
+                        );
+                    }
+
                 }
 
             } else {
@@ -204,21 +262,14 @@ namespace VRViz.Pipeline {
                 }
             
             } 
-            else if (raw_msg.Topic == this.default_mqtt_namespace+"/TF/tf_static") {
-                // if the message is detailing a new configuration
-                Debug.Log("Recieved TF from "+this.default_mqtt_namespace+"/TF/tf_static");
+            else if (raw_msg.Topic == this.default_mqtt_namespace + "/TF/tf_static")
+            {
+                // If the message is detailing a new configuration
+                Debug.Log("Received TF from " + raw_msg.Topic);
 
-                // convert string to json object
-                var settings = new JsonSerializerSettings();
-                settings.Converters.Add(new DisplayConverter());
-                var json = JsonConvert.DeserializeObject<tf2_msgs.TFMessage>(msg, settings);
-
-
-                // WHAT DO WE DO HERE THEN?
-
-                // while loop through each link recieved and if the link parent and child both exist in the scene, we move them
-                // otherwise we save till a message comes in?
-                // im not too sure ont he specifics, we cant just move them to be parent and child as they have other components :/
+                // Convert string to JSON object
+                this.tf_link_details = JsonConvert.DeserializeObject<tf2_msgs.TFMessage>(msg);
+                this.new_tf_data = true;
 
             }
             else {

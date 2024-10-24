@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.02949283, g: 0.07825404, b: 0.16824546, a: 1}
+  m_IndirectSpecularColor: {r: 0.009782872, g: 0.051867522, b: 0.15223652, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1959,6 +1959,37 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &1488309659
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1488309660}
+  m_Layer: 0
+  m_Name: TF Root
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1488309660
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488309659}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.75, z: 0}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1489649458
 GameObject:
   m_ObjectHideFlags: 0
@@ -2060,7 +2091,7 @@ Transform:
   m_GameObject: {fileID: 1739221552}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.23, y: 0, z: 2.77}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2117,8 +2148,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   default_mqtt_ip: mqtt.lcas.group
   default_mqtt_port: 1883
+  default_mqtt_namespace: vrviz
+  NoTF_Table: {fileID: 1784516871}
   text_log: {fileID: 1063543379}
-  rviz_table: {fileID: 1784516871}
+  TF_Root: {fileID: 1488309659}
+  TF_Link: {fileID: 2721784333685647609, guid: 9d57bf407351180c79e0e7e70f7a6c10, type: 3}
 --- !u!1 &1784516871
 GameObject:
   m_ObjectHideFlags: 0
@@ -2129,7 +2163,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1784516872}
   m_Layer: 0
-  m_Name: rviz_table
+  m_Name: NoTF Table
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2143,9 +2177,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1784516871}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.23, y: 0.75, z: 2.77}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2814,6 +2848,7 @@ SceneRoots:
   - {fileID: 1773812831}
   - {fileID: 1114040582}
   - {fileID: 782628378}
-  - {fileID: 1784516872}
   - {fileID: 1739221553}
   - {fileID: 749046743}
+  - {fileID: 1488309660}
+  - {fileID: 1784516872}

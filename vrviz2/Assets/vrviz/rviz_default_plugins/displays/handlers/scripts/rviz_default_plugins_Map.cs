@@ -39,8 +39,6 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
             // subscribe to topic
             byte[] qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
             string[] topic = new string[] { this.mqtt_namespace+"/TOPIC"+this.config_data.Topic.Value };
-
-            Debug.Log("SUBSCRIPTION TO: "+this.mqtt_namespace+"/TOPIC"+this.config_data.Topic.Value);
             this.mqtt_client.client.Subscribe(topic, qos);
             
             this.initial_config = false;
@@ -98,6 +96,7 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
     // Resond to recieved message
     public override void apply_new_msg() {
         this.has_new_msg = false;
+        this.set_frame(this.message_data.header.frame_id.data);
 
         Debug.Log("Map Render Begun");
 

@@ -43,9 +43,21 @@ namespace VRViz.plugins.rviz_default_plugins.prefabs {
         public abstract void apply_new_config();
         public abstract void apply_new_msg();
 
-        public void log(string txt) {
+        public void log(string txt)
+        {
             Debug.Log(txt);
             this.text_log.text = txt;
+        }
+
+        public void set_frame(string frame)
+        {
+
+            // Reference the frame gameobject
+            Transform TF = GameObject.Find("TF: "+frame).transform;
+        
+            // Set this gameobject as the child of the TF
+            this.gameObject.transform.SetParent(TF, false);
+
         }
 
     }
