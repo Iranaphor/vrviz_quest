@@ -25,20 +25,22 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
 
 
     public override void on_config_message(rviz_general.Display msg) {
-        this.log("New config identified.");
+
+        // this.log("New config identified.");
+        // return;
 
         // save message to associated display
         this.config_data = (rviz_plugins.Map)msg;
         this.has_new_config = true;
 
         // Subscribe to the associated topic
-        Debug.Log(this.initial_config);
+        // Debug.Log(this.initial_config);
         if (this.initial_config == true){
-            this.log("initial config it is.");
+            // this.log("initial config it is.");
 
             // subscribe to topic
             byte[] qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
-            string[] topic = new string[] { "vrviz"+this.config_data.Topic.Value };
+            string[] topic = new string[] { this.mqtt_namespace+"/TOPIC"+this.config_data.Topic.Value };
             this.mqtt_client.client.Subscribe(topic, qos);
             
             this.initial_config = false;
@@ -47,57 +49,35 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
 
 
     public override void on_topic_message(MqttMsgPublishEventArgs msg) {
-        this.log("New data identified for Map.");
+        // this.log("New data identified for Map.");
         
         // convert byte array to string
         string msgdata = System.Text.Encoding.UTF8.GetString(msg.Message);
         this.log(msgdata);
 
         // convert string to json object
-        this.log("Deseraialising the map data...");
+        // this.log("Loading map data.");
         Type msgtype = Type.GetType("VRViz.Messages.nav_msgs.OccupancyGrid", true);
         var json = JsonConvert.DeserializeObject(msgdata, msgtype);
-        this.log("Look how long that fricken took...");
+        // this.log("Map data loaded.");
 
         // save message to associated display
         this.message_data = (nav_msgs.OccupancyGrid)json;
         this.has_new_msg = true;
-        Debug.Log("Map Received");
+        // Debug.Log("Map Received");
     }
 
     // Respond to recieved message
     public override void apply_new_config() {
-        //spawn game object of arrow or axes and sets appearence
-        this.log("new config being applied of type Map");
-
-        // arrowaxes_handler handler = this.ArrowAxes.GetComponent<arrowaxes_handler>();
-
-        // handler.Alpha = this.config_data.Shape.Alpha;
-        // handler.AxesLength = this.config_data.Shape.AxesLength;
-        // handler.AxesRadius = this.config_data.Shape.AxesRadius;
-        // handler.Color = this.config_data.Shape.Color;
-        // handler.HeadLength = this.config_data.Shape.HeadLength;
-        // handler.HeadRadius = this.config_data.Shape.HeadRadius;
-        // handler.ShaftLength = this.config_data.Shape.ShaftLength;
-        // handler.ShaftRadius = this.config_data.Shape.ShaftRadius;
-		// handler.Shape = this.config_data.Shape.Value;
-        
-        // handler.SetConfig();
-        
-        // Give configuration details fo the covariance handler
-        // covariance_handler handler2 = this.Covariance.GetComponent<covariance_handler>();
-
-        // handler2.Position = this.config_data.Covariance.Position;
-        // handler2.Orientation = this.config_data.Covariance.Orientation;
-        
-        // handler2.SetConfig();
+        // this.log("new config being applied of type Map");
     }
     
     // Resond to recieved message
     public override void apply_new_msg() {
         this.has_new_msg = false;
+        this.set_frame(this.message_data.header.frame_id.data);
 
-        Debug.Log("Map Render Begun");
+        // Debug.Log("Map Render Begun");
 
         if (this.message_data == null){
             Debug.LogError("this.message_data is null");
@@ -166,7 +146,7 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
         // );
         // this.ImagePlane.transform.rotation = rotation;
 
-        Debug.Log("Map Render Complete");
+        // Debug.Log("Map Render Complete");
         this.message_data = null;
     }
 }

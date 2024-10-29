@@ -16,6 +16,8 @@ namespace VRViz.plugins.rviz_default_plugins.prefabs {
     {
         // Generic items required within the Pipeline class should be defined here.
         public ClientManager mqtt_client;
+        public string mqtt_namespace;
+        public string mqtt_topic;
         public Text text_log;
         public bool has_new_config;
         public bool has_new_msg;
@@ -42,9 +44,31 @@ namespace VRViz.plugins.rviz_default_plugins.prefabs {
         public abstract void apply_new_config();
         public abstract void apply_new_msg();
 
-        public void log(string txt) {
-            Debug.Log(txt);
+        public void log(string txt)
+        {
+            // Debug.Log(txt);
             this.text_log.text = txt;
+        }
+
+        public void set_frame(string frame)
+        {
+            // Try to find the frame GameObject
+            GameObject frameGameObject = GameObject.Find("TF: " + frame);
+
+            if (frameGameObject != null)
+            {
+                // Get the Transform component from the found GameObject
+                Transform TF = frameGameObject.transform;
+
+                // Set this GameObject as the child of the TF
+                this.gameObject.transform.SetParent(TF, false);
+            }
+            else
+            {
+                // Log that the Transform was not found
+                Debug.LogWarning("Error: " + this.name + " could not find tf link for: " + frame);
+            }
+
         }
 
     }

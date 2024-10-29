@@ -24,20 +24,20 @@ public class rviz_default_plugins_Odometry : rviz_prefabs.RvizPrefabBase
 
 
     public override void on_config_message(rviz_general.Display msg) {
-        this.log("New config identified.");
+        // this.log("New config identified.");
 
         // save message to associated display
         this.config_data = (rviz_plugins.Odometry)msg;
         this.has_new_config = true;
 
         // Subscribe to the associated topic
-        Debug.Log(this.initial_config);
+        // Debug.Log(this.initial_config);
         if (this.initial_config == true){
-            this.log("initial config it is.");
+            // this.log("initial config it is.");
 
             // subscribe to topic
             byte[] qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
-            string[] topic = new string[] { "vrviz"+this.config_data.Topic.Value };
+            string[] topic = new string[] { this.mqtt_namespace+"/TOPIC"+this.config_data.Topic.Value };
             this.mqtt_client.client.Subscribe(topic, qos);
             
             this.initial_config = false;
@@ -46,19 +46,15 @@ public class rviz_default_plugins_Odometry : rviz_prefabs.RvizPrefabBase
 
 
     public override void on_topic_message(MqttMsgPublishEventArgs msg) {
-        this.log("New data identified.");
+        // this.log("New data identified.");
         
         // convert byte array to string
         string msgdata = System.Text.Encoding.UTF8.GetString(msg.Message);
-        this.log(msgdata);
+        // this.log(msgdata);
 
         // convert string to json object
         Type msgtype = Type.GetType("VRViz.Messages.nav_msgs.Odometry", true);
         var json = JsonConvert.DeserializeObject(msgdata, msgtype);
-
-        // convert back for validation
-        string jsonString = JsonConvert.SerializeObject(json, Formatting.Indented);
-        Debug.Log("Initial Re-Deserialized JSON object: " + jsonString);
 
         // save message to associated display
         this.message_data = (nav_msgs.Odometry)json;
@@ -96,9 +92,7 @@ public class rviz_default_plugins_Odometry : rviz_prefabs.RvizPrefabBase
     // Resond to recieved message
     public override void apply_new_msg() {
         this.has_new_msg = false;
-
-        string jsonString = JsonConvert.SerializeObject(this.message_data, Formatting.Indented);
-        Debug.Log("Re-Deserialized JSON object: " + jsonString);
+        this.set_frame(this.message_data.header.frame_id.data);
 
         if (this.message_data == null){
             Debug.LogError("this.message_data is null");

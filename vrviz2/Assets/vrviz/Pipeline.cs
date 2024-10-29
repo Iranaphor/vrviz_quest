@@ -17,6 +17,7 @@ using Newtonsoft.Json.Linq;
 
 using rviz_general = VRViz.plugins.rviz_default_plugins.general;
 using rviz_prefabs = VRViz.plugins.rviz_default_plugins.prefabs;
+using tf2_msgs = VRViz.Messages.tf2_msgs;
 
 namespace VRViz.Pipeline {
     public class Pipeline : MonoBehaviour {
@@ -24,24 +25,29 @@ namespace VRViz.Pipeline {
         private ClientManager client;
 
         private bool skip_input = true;
-        // private string default_mqtt_ip = "127.0.0.1";
         public string default_mqtt_ip = "192.168.137.95";
         public int default_mqtt_port = 8883;
+        public string default_mqtt_namespace = "vrviz";
+        
 
         private Dictionary<string, GameObject> displays = new Dictionary<string, GameObject>();
         private List<rviz_general.Display> queue_prefab_generation;
         private List<MqttMsgPublishEventArgs> queue_prefab_msg = new List<MqttMsgPublishEventArgs>();
+        public GameObject NoTF_Table;
 
         public Text text_log;
-        public GameObject rviz_table;
 
-        void Start()
+        private Dictionary<string, GameObject> tf_links = new Dictionary<string, GameObject>();
+        private tf2_msgs.TFMessage tf_link_details;
+        private tf2_msgs.TFMessage tf_static_link_details;
+        public GameObject TF_Root;
+        public GameObject TF_Link;
+        private bool new_tf_data = false;
+        private bool new_tf_static_data = false;
+
+        void Awake()
         {
             if (this.skip_input == true) {
-                //hide mqtt input boxes
-                // mqtt_ip_input.getgameobject().disable = True
-                // mqtt_port_input.getgameobject().disable = True
-
                 //connect to mqtt
                 connect_to_mqtt(this.default_mqtt_ip, this.default_mqtt_port);
             }
@@ -63,23 +69,34 @@ namespace VRViz.Pipeline {
         void Update() {
             if (this.client == null) {
                 Debug.LogError("Client is null...");
+                connect_to_mqtt(this.default_mqtt_ip, this.default_mqtt_port);
                 return;
             }
             if (this.client.client.IsConnected) {
 
-                //once connected, open a topic for the configuration. details
+                //once connected, open a topic for the configuration details
                 if (this.client.on_connection_action) {
                     // define on_message callback
                     this.client.client.MqttMsgPublishReceived += this.on_message;
                     this.client.on_connection_action = false;
 
                     this.text_log.text = "connection completed wooo";
-                    // this.client.client.Publish("vrviz/LOG", "connection completed wooo");
+                    // this.client.client.Publish(this.default_mqtt_namespace+"LOG", "connection completed wooo");
                     //Debug.Log("connection completed woo");
 
-                    // subscribe to topic
+                    // subscribe to rviz config file
                     byte[] qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
-                    string[] topic = new string[] { "vrviz/META" };
+                    string[] topic = new string[] { this.default_mqtt_namespace+"/META/rviz_config" };
+                    this.client.client.Subscribe(topic, qos);
+
+                    // subscribe to tf links
+                    qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
+                    topic = new string[] { this.default_mqtt_namespace+"/TF/tf_static" };
+                    this.client.client.Subscribe(topic, qos);
+
+                    // subscribe to tf links
+                    qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
+                    topic = new string[] { this.default_mqtt_namespace+"/TF/tf" };
                     this.client.client.Subscribe(topic, qos);
                 }
 
@@ -90,31 +107,143 @@ namespace VRViz.Pipeline {
                     this.queue_prefab_generation = null;
 
                     foreach (rviz_general.Display display in queue) {  
-                        Debug.Log("Setting up Prefab for Topic: "+display.Topic.Value);  
 
                         // create new prefab
                         string classType = display.Class.Substring(display.Class.IndexOf('/') + 1);
                         string prefabPath = "prefabs/rviz_default_plugins_" + classType;
-                        Debug.Log("Setting up Prefab of Type: " + prefabPath);
+                        Debug.LogWarning("UPDATE Conf (" + prefabPath + ") for topic: " + display.Topic.Value);
                         GameObject prefab = Resources.Load<GameObject>(prefabPath);
 
                         if (prefab != null) {
                             GameObject go = Instantiate(prefab);
-                            go.transform.SetParent(rviz_table.transform, false);
+                            go.transform.SetParent(NoTF_Table.transform, false);
                             
                             // save prefab for later use
-                            this.displays["vrviz"+display.Topic.Value] = go;
+                            this.displays[this.default_mqtt_namespace+"/TOPIC"+display.Topic.Value] = go;
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().initial_config = true;
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().text_log = this.text_log;
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().mqtt_client = this.client;
+                            go.GetComponent<rviz_prefabs.RvizPrefabBase>().mqtt_namespace = this.default_mqtt_namespace;
+                            go.GetComponent<rviz_prefabs.RvizPrefabBase>().mqtt_topic = display.Topic.Value;
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().on_config_message(display);
+                            go.name = go.name.Replace("Clone", display.Topic.Value);
 
                         } else {
                             Debug.LogError("Prefab not found at path: " + prefabPath);
                         }
 
                     }
-                    
+                }
+
+                if (this.new_tf_static_data) {
+                    this.new_tf_static_data = false;
+
+                    // Create prefabs for each TF frame and save them for later referencing
+                    foreach (var t in this.tf_static_link_details.transforms)
+                    {
+                        // Create and save parent prefab if new
+                        if (!this.tf_links.ContainsKey(t.header.frame_id.data)){
+                            GameObject go_static = Instantiate(this.TF_Link);
+                            go_static.transform.SetParent(TF_Root.transform, false);
+                            go_static.name = "TF: "+t.header.frame_id.data;
+                            this.tf_links[t.header.frame_id.data] = go_static;
+                        }  
+                        // Create and save child prefab if new
+                        if (!this.tf_links.ContainsKey(t.child_frame_id.data)) {
+                            GameObject go_static_child = Instantiate(this.TF_Link);
+                            go_static_child.transform.SetParent(TF_Root.transform, false);
+                            go_static_child.name = "TF: "+t.child_frame_id.data;
+                            this.tf_links[t.child_frame_id.data] = go_static_child;
+                        }
+                    }
+
+                    // For each TF link, if the link and its child both exist, link them together
+                    foreach (var t in this.tf_static_link_details.transforms)
+                    {
+                        if (!this.tf_links.ContainsKey(t.child_frame_id.data))
+                            continue;
+
+                        Transform parent_static = this.TF_Root.transform;
+                        if (this.tf_links.ContainsKey(t.header.frame_id.data))
+                            parent_static = this.tf_links[t.header.frame_id.data].transform;
+                        
+                        this.tf_links[t.child_frame_id.data].transform.SetParent(parent_static, false);
+
+                        // Update the transform of the child
+                        var childTransform = this.tf_links[t.child_frame_id.data].transform;
+                        childTransform.localPosition = new Vector3(
+                            (float)t.transform.translation.x.data,
+                            (float)t.transform.translation.z.data,
+                            (float)t.transform.translation.y.data
+                        );
+                        var rot = new Quaternion(
+                            (float)t.transform.rotation.x.data,
+                            (float)t.transform.rotation.y.data,
+                            (float)t.transform.rotation.z.data,
+                            (float)t.transform.rotation.w.data);
+                        var euler = rot.eulerAngles;
+                        euler.x = 0;
+                        euler.y = -euler.z;
+                        euler.z = 0;
+                        childTransform.localRotation = Quaternion.Euler(euler);
+                    }
+
+                }
+
+
+                if (this.new_tf_data) {
+                    this.new_tf_data = false;
+
+                    // Create prefabs for each TF frame and save them for later referencing
+                    foreach (var t in this.tf_link_details.transforms)
+                    {
+                        // Create and save parent prefab if new
+                        if (!this.tf_links.ContainsKey(t.header.frame_id.data)) {
+                            GameObject go = Instantiate(this.TF_Link);
+                            go.transform.SetParent(TF_Root.transform, false);
+                            go.name = "TF: "+t.header.frame_id.data;
+                            this.tf_links[t.header.frame_id.data] = go;
+                        }
+                        // Create and save child prefab if new
+                        if (!this.tf_links.ContainsKey(t.child_frame_id.data)) {
+                            GameObject go_child = Instantiate(this.TF_Link);
+                            go_child.transform.SetParent(TF_Root.transform, false);
+                            go_child.name = "TF: "+t.child_frame_id.data;
+                            this.tf_links[t.child_frame_id.data] = go_child;
+                        }
+                    }
+
+                    // For each TF link, if the link and its child both exist, link them together
+                    foreach (var t in this.tf_link_details.transforms)
+                    {
+                        if (!this.tf_links.ContainsKey(t.child_frame_id.data))
+                            continue;
+
+                        Transform parent = this.TF_Root.transform;
+                        if (this.tf_links.ContainsKey(t.header.frame_id.data))
+                            parent = this.tf_links[t.header.frame_id.data].transform;
+                        
+                        this.tf_links[t.child_frame_id.data].transform.SetParent(parent, false);
+
+                        // Update the transform of the child
+                        var childTransform = this.tf_links[t.child_frame_id.data].transform;
+                        childTransform.localPosition = new Vector3(
+                            (float)t.transform.translation.x.data,
+                            (float)t.transform.translation.z.data,
+                            (float)t.transform.translation.y.data
+                        );
+                        var rot = new Quaternion(
+                            (float)t.transform.rotation.x.data,
+                            (float)t.transform.rotation.y.data,
+                            (float)t.transform.rotation.z.data,
+                            (float)t.transform.rotation.w.data);
+                        var euler = rot.eulerAngles;
+                        euler.x = 0;
+                        euler.y = -euler.z;
+                        euler.z = 0;
+                        childTransform.localRotation = Quaternion.Euler(euler);
+                    }
+
                 }
 
                 // Apply any messages that came in through async process
@@ -123,7 +252,7 @@ namespace VRViz.Pipeline {
                     this.queue_prefab_msg = new List<MqttMsgPublishEventArgs>();
 
                     foreach (MqttMsgPublishEventArgs msg in queue) {
-                        Debug.Log("Setting up Prefab for Topic: "+msg.Topic);
+                        Debug.LogWarning("UPDATE Msg for: "+msg.Topic);
                         GameObject go = (GameObject)this.displays[msg.Topic];
                         go.GetComponent<rviz_prefabs.RvizPrefabBase>().on_topic_message(msg);
                     }
@@ -139,10 +268,10 @@ namespace VRViz.Pipeline {
 
             // convert message to string
             string msg = System.Text.Encoding.UTF8.GetString(raw_msg.Message);
-            Debug.Log("JSON string: " + msg);
+            // Debug.Log("JSON string: " + msg);
 
             // if the message is detailing a new configuration
-            if (raw_msg.Topic == "vrviz/META") {
+            if (raw_msg.Topic == this.default_mqtt_namespace+"/META/rviz_config") {
                 //Debug.Log("Recieved META from vrviz/META");
 
                 // convert string to json object
@@ -150,10 +279,6 @@ namespace VRViz.Pipeline {
                 settings.Converters.Add(new DisplayConverter());
                 var json = JsonConvert.DeserializeObject<rviz_general.Config>(msg, settings);
               
-                // Serialize the json object back to a string and print it
-                //string jsonString = JsonConvert.SerializeObject(json, Formatting.Indented);
-                //Debug.Log("Re-Deserialized JSON object: " + jsonString);
-
                 //check if null
                 if (json == null) {
                     Debug.LogError("Deserialized json is null. Check the JSON string and Config class.");
@@ -192,20 +317,34 @@ namespace VRViz.Pipeline {
 
                     // Either create a new prefab, or update the status of an existing one
                     GameObject go = null;
+                    Debug.LogWarning("ASYNC Conf for: "+display.Topic.Value);
                     if (this.displays.ContainsKey(display.Topic.Value)) {
                         // get existing reference
-                        Debug.Log("Updating config for Topic: "+display.Topic.Value);
-                        go = (GameObject)this.displays["vrviz"+display.Topic.Value];
+                        go = (GameObject)this.displays[this.default_mqtt_namespace+"/TOPIC/"+display.Topic.Value];
                         go.GetComponent<rviz_prefabs.RvizPrefabBase>().on_config_message(display);
                     } else {
                         this.queue_prefab_generation.Add(display);
                     }
                 }
             
+            } 
+            else if (raw_msg.Topic == this.default_mqtt_namespace + "/TF/tf_static")
+            {
+                // Convert string to JSON object
+                this.tf_static_link_details = JsonConvert.DeserializeObject<tf2_msgs.TFMessage>(msg);
+                this.new_tf_static_data = true;
 
-            } else {
+            }
+            else if (raw_msg.Topic == this.default_mqtt_namespace + "/TF/tf")
+            {
+                // Convert string to JSON object
+                this.tf_link_details = JsonConvert.DeserializeObject<tf2_msgs.TFMessage>(msg);
+                this.new_tf_data = true;
+
+            }
+            else {
                 // ... or send message to prefab for processing
-                Debug.Log("Updating data for Topic: "+raw_msg.Topic);
+                Debug.LogWarning("ASYNC Msg for: "+raw_msg.Topic);
                 this.queue_prefab_msg.Add(raw_msg);
             }
         }
