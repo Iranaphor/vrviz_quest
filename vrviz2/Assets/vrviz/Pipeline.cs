@@ -127,9 +127,6 @@ namespace VRViz.Pipeline {
 
                     }
                     
-                }
-
-
                 if (this.new_tf_static_data) {
                     this.new_tf_static_data = false;
 
@@ -142,7 +139,7 @@ namespace VRViz.Pipeline {
                             go_static.transform.SetParent(TF_Root.transform, false);
                             go_static.name = "TF: "+t.header.frame_id.data;
                             this.tf_links[t.header.frame_id.data] = go_static;
-                        }
+                        }  
                         // Create and save child prefab if new
                         if (!this.tf_links.ContainsKey(t.child_frame_id.data)) {
                             GameObject go_static_child = Instantiate(this.TF_Link);
