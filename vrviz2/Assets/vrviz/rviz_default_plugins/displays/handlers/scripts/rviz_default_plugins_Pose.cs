@@ -30,9 +30,9 @@ public class rviz_default_plugins_Pose : rviz_prefabs.RvizPrefabBase
         this.has_new_config = true;
 
         // Subscribe to the associated topic
-        Debug.Log(this.initial_config);
+        // Debug.Log(this.initial_config);
         if (this.initial_config == true){
-            this.log("initial config it is.");
+            // this.log("initial config it is.");
 
             // subscribe to topic
             byte[] qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
@@ -45,11 +45,11 @@ public class rviz_default_plugins_Pose : rviz_prefabs.RvizPrefabBase
 
 
     public override void on_topic_message(MqttMsgPublishEventArgs msg) {
-        this.log("New data identified.");
+        // this.log("New data identified.");
         
         // convert byte array to string
         string msgdata = System.Text.Encoding.UTF8.GetString(msg.Message);
-        this.log(msgdata);
+        // this.log(msgdata);
 
         // convert string to json object
         Type msgtype = Type.GetType("VRViz.Messages.geometry_msgs.PoseStamped", true);

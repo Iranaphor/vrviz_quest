@@ -26,9 +26,7 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
 
     public override void on_config_message(rviz_general.Display msg) {
 
-        Debug.Log("MAP MEN MAP MEN MAP MAP MAP MEN - " + msg.Class + " - " + msg.Name + " - " + msg.Topic.Value);
-
-        this.log("New config identified.");
+        // this.log("New config identified.");
         // return;
 
         // save message to associated display
@@ -36,9 +34,9 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
         this.has_new_config = true;
 
         // Subscribe to the associated topic
-        Debug.Log(this.initial_config);
+        // Debug.Log(this.initial_config);
         if (this.initial_config == true){
-            this.log("initial config it is.");
+            // this.log("initial config it is.");
 
             // subscribe to topic
             byte[] qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
@@ -51,22 +49,22 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
 
 
     public override void on_topic_message(MqttMsgPublishEventArgs msg) {
-        this.log("New data identified for Map.");
+        // this.log("New data identified for Map.");
         
         // convert byte array to string
         string msgdata = System.Text.Encoding.UTF8.GetString(msg.Message);
         this.log(msgdata);
 
         // convert string to json object
-        this.log("Deseraialising the map data...");
+        // this.log("Loading map data.");
         Type msgtype = Type.GetType("VRViz.Messages.nav_msgs.OccupancyGrid", true);
         var json = JsonConvert.DeserializeObject(msgdata, msgtype);
-        this.log("Look how long that took!");
+        // this.log("Map data loaded.");
 
         // save message to associated display
         this.message_data = (nav_msgs.OccupancyGrid)json;
         this.has_new_msg = true;
-        Debug.Log("Map Received");
+        // Debug.Log("Map Received");
     }
 
     // Respond to recieved message
@@ -79,7 +77,7 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
         this.has_new_msg = false;
         this.set_frame(this.message_data.header.frame_id.data);
 
-        Debug.Log("Map Render Begun");
+        // Debug.Log("Map Render Begun");
 
         if (this.message_data == null){
             Debug.LogError("this.message_data is null");
@@ -148,7 +146,7 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
         // );
         // this.ImagePlane.transform.rotation = rotation;
 
-        Debug.Log("Map Render Complete");
+        // Debug.Log("Map Render Complete");
         this.message_data = null;
     }
 }

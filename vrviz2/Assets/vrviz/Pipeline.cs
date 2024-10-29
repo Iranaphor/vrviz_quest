@@ -93,6 +93,11 @@ namespace VRViz.Pipeline {
                     qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
                     topic = new string[] { this.default_mqtt_namespace+"/TF/tf_static" };
                     this.client.client.Subscribe(topic, qos);
+
+                    // subscribe to tf links
+                    qos = new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE };
+                    topic = new string[] { this.default_mqtt_namespace+"/TF/tf" };
+                    this.client.client.Subscribe(topic, qos);
                 }
 
                 // if any prefabs need to be instantiated do that here
@@ -102,12 +107,11 @@ namespace VRViz.Pipeline {
                     this.queue_prefab_generation = null;
 
                     foreach (rviz_general.Display display in queue) {  
-                        Debug.Log("Setting up Prefab for Topic: "+display.Topic.Value);  
 
                         // create new prefab
                         string classType = display.Class.Substring(display.Class.IndexOf('/') + 1);
                         string prefabPath = "prefabs/rviz_default_plugins_" + classType;
-                        Debug.Log("Setting up Prefab of Type: " + prefabPath);
+                        Debug.LogWarning("UPDATE Conf (" + prefabPath + ") for topic: " + display.Topic.Value);
                         GameObject prefab = Resources.Load<GameObject>(prefabPath);
 
                         if (prefab != null) {
@@ -169,15 +173,19 @@ namespace VRViz.Pipeline {
                         var childTransform = this.tf_links[t.child_frame_id.data].transform;
                         childTransform.localPosition = new Vector3(
                             (float)t.transform.translation.x.data,
-                            (float)t.transform.translation.y.data,
-                            (float)t.transform.translation.z.data
+                            (float)t.transform.translation.z.data,
+                            (float)t.transform.translation.y.data
                         );
-                        childTransform.localRotation = new Quaternion(
+                        var rot = new Quaternion(
                             (float)t.transform.rotation.x.data,
                             (float)t.transform.rotation.y.data,
                             (float)t.transform.rotation.z.data,
-                            (float)t.transform.rotation.w.data
-                        );
+                            (float)t.transform.rotation.w.data);
+                        var euler = rot.eulerAngles;
+                        euler.x = 0;
+                        euler.y = -euler.z;
+                        euler.z = 0;
+                        childTransform.localRotation = Quaternion.Euler(euler);
                     }
 
                 }
@@ -221,15 +229,19 @@ namespace VRViz.Pipeline {
                         var childTransform = this.tf_links[t.child_frame_id.data].transform;
                         childTransform.localPosition = new Vector3(
                             (float)t.transform.translation.x.data,
-                            (float)t.transform.translation.y.data,
-                            (float)t.transform.translation.z.data
+                            (float)t.transform.translation.z.data,
+                            (float)t.transform.translation.y.data
                         );
-                        childTransform.localRotation = new Quaternion(
+                        var rot = new Quaternion(
                             (float)t.transform.rotation.x.data,
                             (float)t.transform.rotation.y.data,
                             (float)t.transform.rotation.z.data,
-                            (float)t.transform.rotation.w.data
-                        );
+                            (float)t.transform.rotation.w.data);
+                        var euler = rot.eulerAngles;
+                        euler.x = 0;
+                        euler.y = -euler.z;
+                        euler.z = 0;
+                        childTransform.localRotation = Quaternion.Euler(euler);
                     }
 
                 }
@@ -240,7 +252,7 @@ namespace VRViz.Pipeline {
                     this.queue_prefab_msg = new List<MqttMsgPublishEventArgs>();
 
                     foreach (MqttMsgPublishEventArgs msg in queue) {
-                        Debug.Log("Setting up Prefab for Topic: "+msg.Topic);
+                        Debug.LogWarning("UPDATE Msg for: "+msg.Topic);
                         GameObject go = (GameObject)this.displays[msg.Topic];
                         go.GetComponent<rviz_prefabs.RvizPrefabBase>().on_topic_message(msg);
                     }
@@ -256,7 +268,7 @@ namespace VRViz.Pipeline {
 
             // convert message to string
             string msg = System.Text.Encoding.UTF8.GetString(raw_msg.Message);
-            Debug.Log("JSON string: " + msg);
+            // Debug.Log("JSON string: " + msg);
 
             // if the message is detailing a new configuration
             if (raw_msg.Topic == this.default_mqtt_namespace+"/META/rviz_config") {
@@ -267,7 +279,6 @@ namespace VRViz.Pipeline {
                 settings.Converters.Add(new DisplayConverter());
                 var json = JsonConvert.DeserializeObject<rviz_general.Config>(msg, settings);
               
-
                 //check if null
                 if (json == null) {
                     Debug.LogError("Deserialized json is null. Check the JSON string and Config class.");
@@ -306,9 +317,9 @@ namespace VRViz.Pipeline {
 
                     // Either create a new prefab, or update the status of an existing one
                     GameObject go = null;
+                    Debug.LogWarning("ASYNC Conf for: "+display.Topic.Value);
                     if (this.displays.ContainsKey(display.Topic.Value)) {
                         // get existing reference
-                        Debug.Log("Updating config for Topic: "+display.Topic.Value);
                         go = (GameObject)this.displays[this.default_mqtt_namespace+"/TOPIC/"+display.Topic.Value];
                         go.GetComponent<rviz_prefabs.RvizPrefabBase>().on_config_message(display);
                     } else {
@@ -319,9 +330,6 @@ namespace VRViz.Pipeline {
             } 
             else if (raw_msg.Topic == this.default_mqtt_namespace + "/TF/tf_static")
             {
-                // If the message is detailing a new configuration
-                Debug.Log("Received TF from " + raw_msg.Topic);
-
                 // Convert string to JSON object
                 this.tf_static_link_details = JsonConvert.DeserializeObject<tf2_msgs.TFMessage>(msg);
                 this.new_tf_static_data = true;
@@ -329,9 +337,6 @@ namespace VRViz.Pipeline {
             }
             else if (raw_msg.Topic == this.default_mqtt_namespace + "/TF/tf")
             {
-                // If the message is detailing a new configuration
-                Debug.Log("Received TF from " + raw_msg.Topic);
-
                 // Convert string to JSON object
                 this.tf_link_details = JsonConvert.DeserializeObject<tf2_msgs.TFMessage>(msg);
                 this.new_tf_data = true;
@@ -339,7 +344,7 @@ namespace VRViz.Pipeline {
             }
             else {
                 // ... or send message to prefab for processing
-                Debug.Log("Updating data for Topic: "+raw_msg.Topic);
+                Debug.LogWarning("ASYNC Msg for: "+raw_msg.Topic);
                 this.queue_prefab_msg.Add(raw_msg);
             }
         }

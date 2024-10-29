@@ -46,7 +46,7 @@ namespace VRViz.plugins.rviz_default_plugins.prefabs {
 
         public void log(string txt)
         {
-            Debug.Log(txt);
+            // Debug.Log(txt);
             this.text_log.text = txt;
         }
 
