@@ -25,7 +25,11 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
 
 
     public override void on_config_message(rviz_general.Display msg) {
+
+        Debug.Log("MAP MEN MAP MEN MAP MAP MAP MEN - " + msg.Class + " - " + msg.Name + " - " + msg.Topic.Value);
+
         this.log("New config identified.");
+        // return;
 
         // save message to associated display
         this.config_data = (rviz_plugins.Map)msg;
@@ -57,7 +61,7 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
         this.log("Deseraialising the map data...");
         Type msgtype = Type.GetType("VRViz.Messages.nav_msgs.OccupancyGrid", true);
         var json = JsonConvert.DeserializeObject(msgdata, msgtype);
-        this.log("Look how long that fricken took...");
+        this.log("Look how long that took!");
 
         // save message to associated display
         this.message_data = (nav_msgs.OccupancyGrid)json;
@@ -67,30 +71,7 @@ public class rviz_default_plugins_Map : rviz_prefabs.RvizPrefabBase
 
     // Respond to recieved message
     public override void apply_new_config() {
-        //spawn game object of arrow or axes and sets appearence
-        this.log("new config being applied of type Map");
-
-        // arrowaxes_handler handler = this.ArrowAxes.GetComponent<arrowaxes_handler>();
-
-        // handler.Alpha = this.config_data.Shape.Alpha;
-        // handler.AxesLength = this.config_data.Shape.AxesLength;
-        // handler.AxesRadius = this.config_data.Shape.AxesRadius;
-        // handler.Color = this.config_data.Shape.Color;
-        // handler.HeadLength = this.config_data.Shape.HeadLength;
-        // handler.HeadRadius = this.config_data.Shape.HeadRadius;
-        // handler.ShaftLength = this.config_data.Shape.ShaftLength;
-        // handler.ShaftRadius = this.config_data.Shape.ShaftRadius;
-		// handler.Shape = this.config_data.Shape.Value;
-        
-        // handler.SetConfig();
-        
-        // Give configuration details fo the covariance handler
-        // covariance_handler handler2 = this.Covariance.GetComponent<covariance_handler>();
-
-        // handler2.Position = this.config_data.Covariance.Position;
-        // handler2.Orientation = this.config_data.Covariance.Orientation;
-        
-        // handler2.SetConfig();
+        // this.log("new config being applied of type Map");
     }
     
     // Resond to recieved message

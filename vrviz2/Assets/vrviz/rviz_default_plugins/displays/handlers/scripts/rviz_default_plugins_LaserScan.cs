@@ -65,10 +65,6 @@ public class rviz_default_plugins_LaserScan : rviz_prefabs.RvizPrefabBase
         Type msgtype = Type.GetType("VRViz.Messages.sensor_msgs.LaserScan", true);
         var json = JsonConvert.DeserializeObject(msgdata, msgtype);
 
-        // convert back for validation
-        // string jsonString = JsonConvert.SerializeObject(json, Formatting.Indented);
-        // Debug.Log("Initial Re-Deserialized JSON object: " + jsonString);
-
         // 8. SET THE CAST TYPE TO THE APPROPRIATE DATA MSG TYPE
         // save message to associated display
         this.message_data = (sensor_msgs.LaserScan)json;

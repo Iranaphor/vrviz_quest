@@ -42,8 +42,8 @@ namespace VRViz.Pipeline {
         private tf2_msgs.TFMessage tf_static_link_details;
         public GameObject TF_Root;
         public GameObject TF_Link;
-        private bool new_tf_static_data;
-        private bool new_tf_data;
+        private bool new_tf_data = false;
+        private bool new_tf_static_data = false;
 
         void Awake()
         {
@@ -69,6 +69,7 @@ namespace VRViz.Pipeline {
         void Update() {
             if (this.client == null) {
                 Debug.LogError("Client is null...");
+                connect_to_mqtt(this.default_mqtt_ip, this.default_mqtt_port);
                 return;
             }
             if (this.client.client.IsConnected) {
@@ -119,14 +120,17 @@ namespace VRViz.Pipeline {
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().text_log = this.text_log;
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().mqtt_client = this.client;
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().mqtt_namespace = this.default_mqtt_namespace;
+                            go.GetComponent<rviz_prefabs.RvizPrefabBase>().mqtt_topic = display.Topic.Value;
                             go.GetComponent<rviz_prefabs.RvizPrefabBase>().on_config_message(display);
+                            go.name = go.name.Replace("Clone", display.Topic.Value);
 
                         } else {
                             Debug.LogError("Prefab not found at path: " + prefabPath);
                         }
 
                     }
-                    
+                }
+
                 if (this.new_tf_static_data) {
                     this.new_tf_static_data = false;
 
@@ -150,7 +154,7 @@ namespace VRViz.Pipeline {
                     }
 
                     // For each TF link, if the link and its child both exist, link them together
-                    foreach (var t in this.tf_link_details.transforms)
+                    foreach (var t in this.tf_static_link_details.transforms)
                     {
                         if (!this.tf_links.ContainsKey(t.child_frame_id.data))
                             continue;
@@ -230,7 +234,6 @@ namespace VRViz.Pipeline {
 
                 }
 
-
                 // Apply any messages that came in through async process
                 if (this.queue_prefab_msg != null) {
                     List<MqttMsgPublishEventArgs> queue = this.queue_prefab_msg;
@@ -243,7 +246,6 @@ namespace VRViz.Pipeline {
                     }
                     
                 }
-
 
             } else {
                 this.text_log.text = "connection failed now";

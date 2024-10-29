@@ -6,20 +6,19 @@ using Newtonsoft.Json;
 namespace VRViz.plugins.rviz_default_plugins.plugins {
 	public class Map : rviz_general.Display {
 
+        public float Alpha;
 
-		// [JsonProperty("Angle Tolerance")]
-		// public float AngleTolerance;
-      	
-		// public rviz_utils::Covariance Covariance;
-      	
-		// public uint Keep;
+		[JsonProperty("Color Scheme")]
+        public string ColorScheme;
 
-		// [JsonProperty("Position Tolerance")]
-		// public float PositionTolerance;
+		[JsonProperty("Draw Behind")]
+        public bool DrawBehind;
 
-		// public rviz_utils::Shape Shape;
+		[JsonProperty("Update Topic")]
+		public rviz_utils::Topic UpdateTopic;
 
-      	// public bool Value;
+		[JsonProperty("Use Timestamp")]
+		public bool UseTimestamp;
 
     }
 }
